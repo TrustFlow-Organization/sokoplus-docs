@@ -1,0 +1,48 @@
+---
+title: Internal notes
+description: How admin teams leave, reply to and manage internal notes on users, businesses, orders, tasks and other records.
+group: admin
+order: 2
+updated: 2026-10-25
+---
+
+Internal notes let admins keep context on a record without exposing it to the customer, vendor or provider. Notes appear in the record's history panel and are visible only to admins.
+
+## Where notes can be attached
+
+A note is attached to one entity through `targetType` and `targetId`. Common targets include users, businesses, products, services, orders, bookings, flags and tasks.
+
+Notes are always **internal**. There is no customer-facing visibility option.
+
+## Writing and replying
+
+- Every note needs a body; blank notes are rejected.
+- Use a reply to keep a discussion under one note. A reply must belong to the same record as its parent.
+- Notes are shown oldest-first so the history reads like a conversation.
+- Attachments are optional and are stored with the note.
+
+## Editing and deleting
+
+| Action | Who can do it |
+|--------|----------------|
+| Edit a note | The original author |
+| Delete a note | The original author or a `superAdmin` |
+| View a deleted note | `superAdmin`, with an explicit include-deleted request |
+
+Deleting is a soft delete: the row stays in the database and the history is preserved. Editing keeps the first original body; only a `superAdmin` can see that original text.
+
+## Permissions and audit
+
+- Reading notes requires `manage_notes`.
+- Every create, update and delete is recorded in the admin audit trail with the actor, target and reason.
+- For a new note, the note body is the audit reason. For an edit or delete, the controller records the note content or a short fallback reason.
+
+<Callout type="note">
+Open note panels refresh in real time when another admin adds, edits or deletes a note. The real-time signal contains only the note ID and target — the full note is always re-read through the permission-checked API.
+</Callout>
+
+## Good practice
+
+- Write for the next admin, not just yourself: include what you checked and what you decided.
+- Use flags and tasks for work that needs an owner or a deadline; use notes for context.
+- Never paste passwords, API keys, full payment credentials or customer secrets into a note.

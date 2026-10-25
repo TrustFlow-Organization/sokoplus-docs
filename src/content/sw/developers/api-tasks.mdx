@@ -1,0 +1,131 @@
+---
+title: Kazi za msimamizi
+description: Rejea ya /api/admin/tasks — ukabidhishaji, mzunguko wa mapitio na mabadiliko ya hali.
+group: api
+order: 16
+updated: 2026-10-25
+---
+
+Kazi za msimamizi hukabidhi kazi kwa msimamizi na zina mzunguko wa mapitio. Njia zote zinahitaji jukumu la msimamizi.
+
+Njia ya msingi: `/api/admin`
+
+| Method | Path | Auth | Maelezo |
+|--------|------|------|---------|
+| GET | `/tasks/mine` | `manage_tasks` | Kazi zilizokabidhiwa kwako |
+| GET | `/tasks` | `manage_tasks` | Kazi zote, zinazochujika |
+| POST | `/tasks` | `assign_tasks` | Unda na ukabidhi kazi |
+| GET | `/tasks/:id` | `manage_tasks` | Kazi pamoja na madokezo yake |
+| POST | `/tasks/:id/transition` | `manage_tasks` | Sogeza kazi |
+
+## Hali na mabadiliko
+
+| Kutoka | Inaruhusiwa kwenda | Mtendaji |
+|--------|--------------------|----------|
+| `OPEN` | `IN_PROGRESS`, `CANCELLED` | Mpokeaji / mkabidhi |
+| `IN_PROGRESS` | `REVIEW`, `CANCELLED` | Mpokeaji / mkabidhi |
+| `REVIEW` | `DONE`, `CANCELLED` | Mkabidhi |
+| `DONE` | `CONFIRMED`, `CANCELLED` | Mkabidhi |
+| `CONFIRMED` | — | Mwisho |
+| `CANCELLED` | — | Mwisho |
+
+Mpokeaji husogeza `IN_PROGRESS` na `REVIEW`. Mkabidhi pekee anaweza kuweka `DONE`, `CONFIRMED` au `CANCELLED`. `superAdmin` anaweza kufanya mabadiliko yoyote halali.
+
+Vipaumbele: `low`, `normal` (chaguo-msingi), `high`, `urgent`.
+
+## Orodhesha kazi
+
+```http
+GET /api/admin/tasks?status=OPEN&assigneeId=<adminId>&page=1&limit=25
+```
+
+Vichujio: `assigneeId`, `assignerId`, `status`, `relatedType`, `relatedId`, `page`, `limit` (juu `100`).
+
+`GET /tasks/mine` ni orodha ile ile iliyolazimishwa kwa `assigneeId = <mtumiaji wa sasa>`; inakubali `status`, `page` na `limit`.
+
+Zote hurudisha:
+
+```json
+{ "items": [], "total": 0, "page": 1, "limit": 25 }
+```
+
+## Unda kazi
+
+```http
+POST /api/admin/tasks
+Content-Type: application/json
+
+{
+  "title": "Thibitisha nyaraka za biashara iliyoibuliwa",
+  "description": "Kagua cheti cha TIN na barua ya umiliki.",
+  "assigneeId": "<adminId>",
+  "dueAt": "2026-10-30T17:00:00.000Z",
+  "priority": "high",
+  "relatedType": "business",
+  "relatedId": "<businessId>",
+  "flagId": "<flagId>",
+  "regionId": null,
+  "reason": "Bendera ya ukali wa juu inahitaji mapitio kabla ya malipo."
+}
+```
+
+Vinavyohitajika: `title`, `assigneeId`. Mpokeaji lazima awe `partnerAdmin`, `majorAdmin` au `superAdmin`.
+
+Hiari: `description`, `dueAt` (tarehe halali ya ISO), `priority`, `relatedType`, `relatedId`, `flagId`, `regionId`, `reason`.
+
+`regionId` huchukua mkoa wa mkabidhi kwa chaguo-msingi, kisha ule wa mpokeaji. Kuunganisha `flagId` huweka `taskId` kwenye bendera.
+
+Huruhisha `201` na `{ "task": ... }` na humjulisha mpokeaji.
+
+## Pata kazi moja
+
+```http
+GET /api/admin/tasks/<taskId>
+```
+
+Huruhisha `{ "task": ..., "notes": [...] }`, pamoja na historia ya madokezo ya ndani ya kazi.
+
+## Sogeza kazi
+
+```http
+POST /api/admin/tasks/<taskId>/transition
+Content-Type: application/json
+
+{
+  "to": "REVIEW",
+  "note": "Nyaraka zinaoana na rejista; tayari kwa mapitio ya mkabidhi."
+}
+```
+
+`to` lazima iwe hali halali inayofuata na `note` inahitajika na isiwe tupu. Dokezo huhifadhiwa kama `AdminNote` ya ndani kwenye kazi.
+
+Jibu:
+
+```json
+{
+  "task": { "status": "REVIEW" },
+  "next": ["DONE", "CANCELLED"]
+}
+```
+
+`next` huorodhesha hali zinazofikiwa kutoka hali mpya.
+
+## Makosa
+
+| Code | Maana |
+|------|-------|
+| `400 TASK_TITLE_REQUIRED` | Kichwa hakipo au ni tupu |
+| `400 INVALID_ASSIGNEE` | Mpokeaji si msimamizi |
+| `400 INVALID_TASK_PRIORITY` | Kipaumbele hakijulikani |
+| `400 INVALID_DUE_DATE` | `dueAt` si tarehe halali |
+| `400 INVALID_TASK_STATUS` | Hali lengwa haijulikani |
+| `400 TASK_NOTE_REQUIRED` | Dokezo la mabadiliko halipo |
+| `403 NOT_TASK_ASSIGNEE` | Mabadiliko ya mpokeaji pekee yamefanywa na mwingine |
+| `403 NOT_TASK_ASSIGNER` | Mabadiliko ya mkabidhi pekee yamefanywa na mwingine |
+| `404 TASK_NOT_FOUND` | Kazi haipo |
+| `409 INVALID_TASK_TRANSITION` | Mabadiliko hayako kwenye mzunguko |
+| `409 TASK_ALREADY_CLOSED` | Kazi ni `CONFIRMED` au `CANCELLED` |
+
+<Callout type="note">
+Mabadiliko hukaguliwa kwa uwezo wa `manage_tasks`; uundaji hukaguliwa kwa `assign_tasks`. Zote zinahitaji sababu, na mabadiliko ya kazi hutumia dokezo kama sababu hiyo.
+</Callout>

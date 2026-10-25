@@ -1,0 +1,29 @@
+---
+title: Media uploads
+description: Reference for /api/upload — selfie, KYC document and chat image uploads.
+group: api
+order: 13
+updated: 2026-10-25
+---
+
+Uploads are handled by `multer` (in-memory, per-file limit **5 MB**) and forwarded to Cloudinary. All endpoints require a **JWT**.
+
+## Upload / KYC (`/api/upload`)
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/upload/selfie` | JWT | Upload a selfie photo — multipart, field `file` |
+| POST | `/upload/document` | JWT | Upload a KYC document — multipart, field `file` |
+| POST | `/upload/chat` | JWT | Upload an in-chat image — multipart, field `file` |
+
+Each request accepts a single file up to **5 MB**. Selfie and chat uploads accept `image/*`; KYC documents accept `image/*` or `application/pdf`. Sending more than one file, or an oversized file, returns `400`.
+
+<Callout type="note">
+For KYC verification, each file (selfie, ID document, business document) is uploaded one at a time. Upload the selfie first, then the documents.
+</Callout>
+
+Responses return the Cloudinary URL and a message:
+
+```json
+{ "url": "https://res.cloudinary.com/…/selfie.jpg", "message": "Selfie uploaded" }
+```

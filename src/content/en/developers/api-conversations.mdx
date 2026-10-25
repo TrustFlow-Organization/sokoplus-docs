@@ -1,0 +1,139 @@
+---
+title: Conversations & messages
+description: Reference for /api/messages — direct conversations, thread pagination and the channel model.
+group: api
+order: 17
+updated: 2026-10-25
+---
+
+Messaging is gated by the `messaging` feature flag. The mounted API supports **direct conversations** between two users.
+
+Base path: `/api/messages`
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/` | JWT | Send a direct message |
+| GET | `/conversations` | JWT | Conversations for the current user |
+| GET | `/conversations/:id/messages` | JWT | Thread messages |
+| PUT | `/conversations/:id/read` | JWT | Mark a conversation read |
+| GET | `/conversations/:id/catalog` | JWT | The other participant's products/services |
+| GET | `/unread/count` | JWT | Total unread messages |
+| GET | `/recipients/search` | JWT | Search possible recipients |
+
+## Send a message
+
+```http
+POST /api/messages
+Content-Type: application/json
+
+{
+  "receiverId": "<uuid>",
+  "content": "Is the blue variant still available?",
+  "attachment": null
+}
+```
+
+`receiverId` must be a valid user UUID. `content` is trimmed and limited to 2000 characters. At least one of `content` or `attachment` is required. You cannot message yourself.
+
+Attachment shapes:
+
+| Kind | Fields |
+|------|--------|
+| `product` | `id`, `name`, optional `price`, optional `image` |
+| `service` | `id`, `name`, optional `price`, optional `image` |
+| `image` | `name`, `image` (http/https) |
+
+The first message between two users creates the conversation. The response:
+
+```json
+{
+  "conversationId": "...",
+  "message": {
+    "id": "...",
+    "conversationId": "...",
+    "senderId": "...",
+    "receiverId": "...",
+    "content": "...",
+    "createdAt": "...",
+    "isRead": false
+  },
+  "receiver": { "id": "...", "fullName": "...", "avatarUrl": "..." }
+}
+```
+
+The receiver gets `message:new` and `notification:new` socket events. On the first message from this sender, the backend also attempts an SMS/email notice using the receiver's notification preferences.
+
+## List conversations
+
+```http
+GET /api/messages/conversations?page=1&limit=20
+```
+
+`limit` max `50`. Returns:
+
+```json
+{
+  "conversations": [
+    {
+      "id": "...",
+      "lastMessageAt": "...",
+      "otherUser": {
+        "id": "...",
+        "fullName": "...",
+        "avatarUrl": "...",
+        "role": "vendor",
+        "businessName": "..."
+      },
+      "lastMessage": { "id": "...", "senderId": "...", "content": "...", "isRead": true },
+      "unread": 0
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "limit": 20,
+  "hasMore": false
+}
+```
+
+## Read a thread
+
+```http
+GET /api/messages/conversations/<id>/messages?before=2026-10-25T12:00:00.000Z&limit=50
+```
+
+`before` is an offset-aware ISO timestamp; `limit` max `50`. Only conversation members can read the thread. Messages are returned oldest-to-newest in the page, with `hasMore` indicating whether older messages remain.
+
+## Mark read
+
+```http
+PUT /api/messages/conversations/<id>/read
+```
+
+Marks incoming messages in the conversation as read. The other participant receives `conversation:read`.
+
+## Catalog and recipients
+
+```http
+GET /api/messages/conversations/<id>/catalog
+GET /api/messages/recipients/search?q=amina&limit=8
+```
+
+`catalog` returns the other participant's active products/services for in-chat sharing. Recipient search matches user names and business names; suspended, disqualified and deleted users are excluded.
+
+## Channel model
+
+`Conversation` and `ConversationParticipant` also model admin channels:
+
+| Kind | Key |
+|------|-----|
+| `DIRECT` | Sorted user pair |
+| `ADMIN_DIRECT` | Sorted admin pair |
+| `ADMIN_COMPANY` | `admin-company` |
+| `ADMIN_REGION` | `admin-region:<regionId>` |
+| `CUSTOMERCARE` | `customercare:<sourceId>` |
+
+Admin and CustomerCare channel helpers exist in `chatChannelService`, including participant-aware unread counts and CustomerCare sender masking. They are **not mounted on the HTTP API yet**; do not integrate against them until routes are published.
+
+<Callout type="warning">
+The old `/messages/:userId`, `/messages/:id/read` and `/messages/read/:userId` routes no longer exist. Use the conversation routes above.
+</Callout>

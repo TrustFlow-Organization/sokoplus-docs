@@ -1,0 +1,62 @@
+---
+title: Messages and CustomerCare
+description: How direct messaging works for users, and how admin and CustomerCare channels are modelled.
+group: admin
+order: 4
+updated: 2026-10-25
+---
+
+SokoPlus messaging keeps buyers, vendors, providers and admins in one conversation history. The public messaging API currently exposes **direct conversations**; admin and CustomerCare channels are modelled in the backend and roll out behind their own admin surfaces.
+
+## Direct messages
+
+A direct conversation is created automatically the first time two users message each other. Each conversation has a stable pair key, so the same two users always return to the same thread.
+
+- Users can send text and a structured attachment (product, service, image, or order photos).
+- The conversation list shows the latest message and an unread count.
+- Opening a conversation marks its incoming messages as read.
+- A user can search for recipients by name or business name.
+- The first message from a sender also triggers an SMS/email notice, subject to the receiver's notification preferences.
+
+Messages are delivered in real time through the user's socket room, and a notification row is created for the receiver.
+
+## Admin channels
+
+The backend models five conversation kinds:
+
+| Kind | Purpose |
+|------|---------|
+| `DIRECT` | Ordinary user-to-user conversation |
+| `ADMIN_DIRECT` | Two-administrator conversation |
+| `ADMIN_COMPANY` | Shared company-wide admin channel |
+| `ADMIN_REGION` | Admin channel for one region |
+| `CUSTOMERCARE` | Customer support conversation |
+
+Admin channels use explicit participants rather than the legacy two-user pair, so a channel can have more than two members. Unread state is tracked per participant.
+
+### CustomerCare masking
+
+In a `CUSTOMERCARE` conversation, messages sent by an admin are stamped with the display name **CustomerCare**. The customer sees the support identity, not the individual admin's name.
+
+Admins can still see the real participant roster in the admin surface. Customer-facing clients must use the masked `senderDisplayName` when it is present.
+
+## Current availability
+
+The mounted messaging API supports direct messages only. The admin channel service, participant model and CustomerCare masking exist in the backend, but the admin/customer-care HTTP routes are not yet part of the public API.
+
+Do not build an integration against admin channel endpoints until they are documented on the API reference. The `manage_admin_chat` and `manage_customercare` permission keys gate the admin surfaces when they ship.
+
+## Permissions
+
+| Capability | Permission key |
+|------------|----------------|
+| Use admin team chat | `manage_admin_chat` |
+| Handle CustomerCare conversations | `manage_customercare` |
+| Send platform notifications | `send_messages` |
+
+## Safety
+
+- Never share another customer's personal data in a conversation.
+- Keep payment details out of chat; use the order and refund flows.
+- Report abusive messages through the normal reporting flow so the conversation is preserved for review.
+- CustomerCare admins should use the masked identity and avoid revealing internal notes or admin-only context.

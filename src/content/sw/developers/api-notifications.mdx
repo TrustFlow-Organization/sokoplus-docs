@@ -3,7 +3,7 @@ title: Arifa na ujumbe
 description: Rejea ya /api/notifications, /api/messages, /api/content na endpoints za msaada.
 group: api
 order: 8
-updated: 2026-08-03
+updated: 2026-10-25
 ---
 
 Endpoints hizi zinashughulikia mawasiliano baina ya watumiaji na maudhui ya jukwaa.
@@ -16,25 +16,28 @@ Endpoints hizi zinashughulikia mawasiliano baina ya watumiaji na maudhui ya jukw
 | PUT | `/notifications/:id/read` | JWT | Weka alama ya kusoma kwa arifa moja |
 | PUT | `/notifications/read-all` | JWT | Weka alama ya kusoma zote |
 | DELETE | `/notifications/clear` | JWT | Futa zote |
-| POST | `/notifications/register-token` | JWT | Sajili usajili wa web-push |
-| PUT | `/notifications/update-expo-token` | JWT | Sasisha tokeni ya push ya Expo |
+| POST | `/notifications/register-token` | JWT | Sajili tokeni ya Expo, au usajili wa web-push kwa `type: "web"` |
 | GET | `/notifications/preferences` | JWT | Pata mapendeleo |
 | PUT | `/notifications/preferences` | JWT | Sasisha mapendeleo |
-| POST | `/notifications/notify-all` | admin | Arifu kila mtu |
-| POST | `/notifications/notify-vendor` | admin | Arifu wauzaji |
+| POST | `/notifications` | `send_messages` | Tuma kwa `userId`, `userIds` au `roles` |
 
-Mapendeleo: `order_updates`, `promotions`, `general`.
+Mapendeleo: `order_updates`, `promotions`, `general`, `channel` (`sms`/`email`).
 
 ## Ujumbe (`/api/messages`)
 
+Mazungumzo ya moja kwa moja pekee. Yanahitaji swichi ya kipengele `messaging`.
+
 | Method | Path | Auth | Maelezo |
 |--------|------|------|-------------|
-| POST | `/messages` | JWT | Tuma ujumbe |
-| GET | `/messages/conversations` | JWT | Mazungumzo + idadi ya ujumbe usiosomwa |
-| GET | `/messages/:userId` | JWT | Mjadala na mtumiaji |
-| PUT | `/messages/:id/read` | JWT | Weka alama ya kusoma kwa ujumbe mmoja |
-| PUT | `/messages/read/:userId` | JWT | Weka alama ya kusoma ujumbe wote wa mtumiaji |
+| POST | `/messages` | JWT | Tuma ujumbe wa moja kwa moja (`receiverId`, `content`, `attachment` si lazima) |
+| GET | `/messages/conversations` | JWT | Mazungumzo + idadi ya ujumbe usiosomwa (`page`, `limit`) |
+| GET | `/messages/conversations/:id/messages` | JWT | Ujumbe wa mjadala (`before`, `limit`) |
+| PUT | `/messages/conversations/:id/read` | JWT | Weka alama ya kusoma mazungumzo |
+| GET | `/messages/conversations/:id/catalog` | JWT | Bidhaa/huduma za mshiriki mwingine |
 | GET | `/messages/unread/count` | JWT | Jumla ya ujumbe usiosomwa |
+| GET | `/messages/recipients/search` | JWT | Tafuta wapokeaji (`q`, `limit`) |
+
+Modeli ya `Conversation` pia huhifadhi aina za channel za msimamizi na CustomerCare, lakini ni njia za ujumbe wa moja kwa moja zilizo hapo juu pekee zilizowekwa kwenye API kwa sasa. Tazama **Mazungumzo na ujumbe** kwa modeli na hali ya uenezaji.
 
 ## Maudhui na msaada (`/api/content`)
 

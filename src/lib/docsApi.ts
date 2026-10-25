@@ -8,6 +8,7 @@ export interface DocsSession {
   name: string
   email: string
   exp?: number
+  local?: boolean
 }
 
 export interface TokenRecord {

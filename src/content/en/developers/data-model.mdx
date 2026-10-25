@@ -3,7 +3,7 @@ title: Data model
 description: The core Prisma models behind SokoPlus — users, commerce, money and operations.
 group: platform
 order: 1
-updated: 2026-08-07
+updated: 2026-10-25
 ---
 
 SokoPlus stores everything in **PostgreSQL** and models it with **Prisma**. This page covers the core models.
@@ -51,7 +51,9 @@ SokoPlus stores everything in **PostgreSQL** and models it with **Prisma**. This
 
 | Model | Purpose |
 |-------|---------|
-| `Message` | Direct messages between users |
+| `Message` | Direct messages (also used by channel conversations) |
+| `Conversation` | A `DIRECT`, `ADMIN_DIRECT`, `ADMIN_COMPANY`, `ADMIN_REGION` or `CUSTOMERCARE` channel, keyed by `pairKey` |
+| `ConversationParticipant` | Explicit channel membership + per-participant `lastReadAt` |
 | `Notification` | System notifications |
 | `SupportTicket` | Customer support threads |
 | `CustomerReport` | Bug/complaint/feature reports |
@@ -65,13 +67,30 @@ SokoPlus stores everything in **PostgreSQL** and models it with **Prisma**. This
 | `PlatformSetting` | Key-value config (incl. ecommerce feature flags) |
 | `PlatformContent` | CMS pages (privacy, terms) |
 | `FAQ` | Frequently asked questions |
-| `ActivityLog` | Audit trail |
-| `AdminPermission` | Per-admin permission toggles |
+| `ActivityLog` | Global audit timeline of events |
+| `AdminPermission` | Per-admin permission override (`effect` = `grant` \| `deny`; `deny` wins) |
+| `RolePermission` | Role-level default grants — one row per `role` + `permissionKey` |
+| `AdminAction` | Entity-attached audit record: `actorId`, `capability`, `targetType`/`targetId`, `reason`, `metadata` |
+| `AdminNote` | Internal note on any `targetType`/`targetId`, with replies via `parentId`, soft delete and superAdmin-only `originalBody` |
+| `EntityFlag` | A concern on any entity: `reason`, `severity`, `status`, optional linked `taskId` |
+| `AdminTask` | Assigned admin work: assignee/assigner, priority, due date, review `status`, entity/flag/region links |
+| `Region` / `MajorAdminRegion` | Regions and each major admin's region assignment |
 | `OtpCode` | One-time passwords |
 | `TokenBlacklist` | Revoked tokens |
 | `WorkingHours` | Business schedules |
 | `DeliveryZone` | Delivery areas + fees |
-| `ShowcaseProject` | Promoted external projects |
+
+## Admin permissions
+
+Admin access is resolved from three layers, so it needs three models plus an audit table:
+
+| Model | Purpose |
+|-------|---------|
+| `RolePermission` | The **role default** — one row per `role` + `permissionKey` (`enabled`). Seeds the baseline every admin of that role inherits. When a role has no rows, the code defaults in `ROLE_PERMISSIONS` apply. |
+| `AdminPermission` | The **per-admin override** — one row per `adminId` + `permissionKey`, with `effect` (`grant`/`deny`) and `grantedBy`. `deny` always beats a role default. |
+| `AdminAction` | The **entity-attached audit record** for every admin mutation — `actorId`, `actorRole`, `capability`, `action`, `targetType`/`targetId`, `reason`, `metadata`, `ipAddress`. Sits beside `ActivityLog`, which stays the global timeline. |
+
+A `superAdmin` holds every key without any rows in either permission table. See **Permissions & roles** for the full resolution order and the grant matrix.
 
 ## Suborders
 
@@ -102,6 +121,16 @@ Order-level fields also exist for legacy/single-vendor flows and order-wide acco
 `OrderItem` rows snapshot the product at purchase time (`productId`, `productName`, `productPrice`, `quantity`, `imageUrl`) plus the selected variant (`variantId`, `variantName`, `variantType`) and any `selectedSpecs` / `notes`. Every item is linked to the owning suborder via `suborderId`.
 
 Endpoints that act on one business's share (`/orders/:id/status`, `/orders/:id/verify-recipient`, `/delivery/assign`, `/delivery/:id/verify`) accept an optional `suborderId` to target the correct suborder.
+
+## Admin management primitives
+
+| Model | Lifecycle |
+|-------|-----------|
+| `AdminNote` | Internal-only notes. `parentId` makes a reply; `deletedAt` is a soft delete. `originalBody` preserves the first edit for superAdmin audit. |
+| `EntityFlag` | `open → investigating → resolved / dismissed`; severity `low`/`medium`/`high`/`critical`. Terminal flags cannot reopen. A flag can link to one task via `taskId`. |
+| `AdminTask` | `OPEN → IN_PROGRESS → REVIEW → DONE → CONFIRMED`; `CANCELLED` from any non-terminal state. Assignee drives the first two moves; assigner closes. `flagId`, `relatedType`/`relatedId`, `regionId` link the work. |
+
+Every task transition writes an `AdminNote` on `targetType: "task"` so the task timeline explains each hand-off. See **Flags** and **Admin tasks** for the API rules.
 
 ## Soft delete pattern
 

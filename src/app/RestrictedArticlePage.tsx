@@ -1,25 +1,33 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Calendar, Loader2, Lock, ShieldAlert } from 'lucide-react'
+import { Calendar, KeyRound, Loader2, Lock, ShieldAlert } from 'lucide-react'
 import { docsApi, type Article } from '@/lib/docsApi'
-import { clearSession } from '@/lib/docsAuth'
+import { clearSession, useDocsSession } from '@/lib/docsAuth'
+import { isLocalSession } from '@/lib/developerAuth'
 import { RequireDocs } from '@/components/ui/AuthGate'
 import { MarkdownArticle } from '@/components/mdx/MarkdownArticle'
 import { usePageMeta } from '@/lib/seo'
 import { isLang, DEFAULT_LANG, type Lang } from '@/i18n'
 
-type Status = 'loading' | 'ready' | 'forbidden' | 'error'
+type Status = 'loading' | 'ready' | 'forbidden' | 'error' | 'local'
 
 export function RestrictedArticlePage() {
   const { lang: langParam, slug } = useParams<{ lang?: string; slug: string }>()
   const lang: Lang = isLang(langParam) ? langParam : DEFAULT_LANG
   const { t } = useTranslation('auth')
+  const session = useDocsSession()
   const [status, setStatus] = useState<Status>('loading')
   const [article, setArticle] = useState<Article | null>(null)
   const [message, setMessage] = useState('')
 
   useEffect(() => {
+    if (isLocalSession(session)) {
+      setArticle(null)
+      setMessage('')
+      setStatus('local')
+      return
+    }
     let cancelled = false
     setStatus('loading')
     setArticle(null)
@@ -43,7 +51,7 @@ export function RestrictedArticlePage() {
     return () => {
       cancelled = true
     }
-  }, [lang, slug])
+  }, [lang, slug, session])
 
   usePageMeta({
     title: article ? `${article.title} | SokoPlus Docs` : 'Restricted | SokoPlus Docs',
@@ -56,6 +64,32 @@ export function RestrictedArticlePage() {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-brand" />
+      </div>
+    )
+  }
+
+  if (status === 'local') {
+    return (
+      <div className="mx-auto max-w-md py-16 text-center">
+        <span className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand">
+          <KeyRound className="h-6 w-6" />
+        </span>
+        <h1 className="mt-4 text-xl font-black">{t('localArticleTitle')}</h1>
+        <p className="mt-2 text-sm text-on-surface-variant">{t('localArticleRestricted')}</p>
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          <Link
+            to={`/${lang}/redeem?next=${encodeURIComponent(`/${lang}/developers/${slug}`)}`}
+            className="inline-flex rounded-lg bg-btn px-4 py-2 text-sm font-bold text-white hover:bg-btn-hover"
+          >
+            {t('redeemAccess')}
+          </Link>
+          <Link
+            to={`/${lang}/developers`}
+            className="inline-flex rounded-lg border border-line px-4 py-2 text-sm font-bold text-on-surface-variant hover:bg-surface-container"
+          >
+            {t('backToDocs')}
+          </Link>
+        </div>
       </div>
     )
   }

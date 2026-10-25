@@ -1,0 +1,62 @@
+---
+title: Ujumbe na CustomerCare
+description: Jinsi ujumbe wa moja kwa moja unavyofanya kazi kwa watumiaji, na jinsi channel za msimamizi na CustomerCare zinavyoundwa.
+group: admin
+order: 4
+updated: 2026-10-25
+---
+
+Ujumbe wa SokoPlus huweka wanunuzi, wauzaji, watoa huduma na wasimamizi kwenye historia moja ya mazungumzo. API ya umma ya ujumbe kwa sasa inatoa **mazungumzo ya moja kwa moja**; channel za msimamizi na CustomerCare zimeundwa kwenye backend na zinaanza hatua kwa hatua kupitia nyuso zao za msimamizi.
+
+## Ujumbe wa moja kwa moja
+
+Mazungumzo ya moja kwa moja huundwa kiotomatiki mara ya kwanza watumiaji wawili wanapotumiana ujumbe. Kila mazungumzo yana ufunguo thabiti wa jozi, kwa hivyo watumiaji hao wawili hurudi kwenye mjadala ule ule.
+
+- Watumiaji wanaweza kutuma maandishi na kiambatisho kilichoundwa (bidhaa, huduma, picha, au picha za agizo).
+- Orodha ya mazungumzo huonyesha ujumbe wa mwisho na idadi ya ujumbe usiosomwa.
+- Kufungua mazungumzo huweka alama ya kusoma kwa ujumbe unaoingia.
+- Mtumiaji anaweza kutafuta wapokeaji kwa jina au jina la biashara.
+- Ujumbe wa kwanza kutoka kwa mtumaji pia huchochea taarifa ya SMS/barua pepe, kulingana na mapendeleo ya mpokeaji.
+
+Ujumbe huwasilishwa papo hapo kupitia chumba cha socket cha mtumiaji, na safu ya arifa huundwa kwa mpokeaji.
+
+## Channel za msimamizi
+
+Backend inaunda aina tano za mazungumzo:
+
+| Aina | Madhumuni |
+|------|-----------|
+| `DIRECT` | Mazungumzo ya kawaida kati ya watumiaji |
+| `ADMIN_DIRECT` | Mazungumzo kati ya wasimamizi wawili |
+| `ADMIN_COMPANY` | Channel ya pamoja ya wasimamizi wa kampuni nzima |
+| `ADMIN_REGION` | Channel ya wasimamizi wa mkoa mmoja |
+| `CUSTOMERCARE` | Mazungumzo ya usaidizi wa mteja |
+
+Channel za msimamizi hutumia washiriki wa wazi badala ya jozi ya watumiaji wawili ya zamani, kwa hivyo channel inaweza kuwa na washiriki zaidi ya wawili. Hali ya ujumbe usiosomwa hufuatiliwa kwa kila mshiriki.
+
+### Ufichaji wa CustomerCare
+
+Kwenye mazungumzo ya `CUSTOMERCARE`, ujumbe unaotumwa na msimamizi huwekewa jina la kuonyesha **CustomerCare**. Mteja huona utambulisho wa usaidizi, sio jina la msimamizi mmoja.
+
+Wasimamizi bado wanaweza kuona orodha halisi ya washiriki kwenye uso wa msimamizi. Programu zinazomwonyesha mteja lazima zitumie `senderDisplayName` iliyofichwa ikiwa ipo.
+
+## Upatikanaji wa sasa
+
+API ya ujumbe iliyowekwa inaunga mkono ujumbe wa moja kwa moja pekee. Huduma ya channel za msimamizi, modeli ya washiriki na ufichaji wa CustomerCare vipo kwenye backend, lakini njia za HTTP za msimamizi/CustomerCare bado si sehemu ya API ya umma.
+
+Usijenge muunganisho dhidi ya endpoint za channel za msimamizi hadi zitakapodokumentwa kwenye rejea ya API. Funguo za ruhusa `manage_admin_chat` na `manage_customercare` hulinda nyuso za msimamizi zitakapozinduliwa.
+
+## Ruhusa
+
+| Uwezo | Ufunguo wa ruhusa |
+|-------|-------------------|
+| Kutumia mazungumzo ya timu ya wasimamizi | `manage_admin_chat` |
+| Kushughulikia mazungumzo ya CustomerCare | `manage_customercare` |
+| Kutuma arifa za jukwaa | `send_messages` |
+
+## Usalama
+
+- Usishiriki data binafsi ya mteja mwingine kwenye mazungumzo.
+- Weka taarifa za malipo nje ya mazungumzo; tumia mtiririko wa agizo na kurudishiwa fedha.
+- Ripoti ujumbe wenye matusi kupitia mtiririko wa kawaida wa kuripoti ili mazungumzo yahifadhiwe kwa ukaguzi.
+- Wasimamizi wa CustomerCare wanapaswa kutumia utambulisho uliofichwa na kuepuka kufichua madokezo ya ndani au muktadha wa wasimamizi pekee.

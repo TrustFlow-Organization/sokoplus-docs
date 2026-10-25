@@ -3,7 +3,7 @@ title: Notifications & push
 description: How system notifications and push messaging work — Expo push, web push, preferences.
 group: platform
 order: 3
-updated: 2026-08-03
+updated: 2026-10-25
 ---
 
 Notifications keep users in the loop. The backend delivers them through three channels: **in-app**, **Expo push** (mobile), and **web push** (browser).
@@ -18,17 +18,23 @@ Notifications keep users in the loop. The backend delivers them through three ch
 
 ## Registering for push
 
+Both mobile and web use the same endpoint, `POST /api/notifications/register-token`:
+
 ```bash
 # Mobile (Expo token)
-curl -X PUT https://api.sokopluss.co.tz/api/notifications/update-expo-token \
+curl -X POST https://api.sokopluss.co.tz/api/notifications/register-token \
   -H "Authorization: Bearer <token>" \
-  -d '{"expoPushToken": "ExponentPushToken[...]"}'
+  -H "Content-Type: application/json" \
+  -d '{"token": "ExponentPushToken[...]"}'
 
 # Web (push subscription)
 curl -X POST https://api.sokopluss.co.tz/api/notifications/register-token \
   -H "Authorization: Bearer <token>" \
-  -d '{"subscription": {"endpoint": "...", "keys": {"auth": "...", "p256dh": "..."}}}'
+  -H "Content-Type: application/json" \
+  -d '{"type": "web", "endpoint": "...", "p256dh": "...", "auth": "..."}'
 ```
+
+For web push, pass `type: "web"` with the subscription's `endpoint`, `p256dh` and `auth`. Without `type`, the body's `token` is stored as the user's Expo push token.
 
 ## Preferences
 
@@ -39,6 +45,7 @@ Users can mute notification types via `GET/PUT /api/notifications/preferences`.
 | `order_updates` | Order status, delivery, escrow |
 | `promotions` | Promos, boosts, coupons |
 | `general` | Everything else |
+| `channel` | `sms` (default) or `email` for non-push delivery |
 
 ## What triggers a notification
 
@@ -49,15 +56,27 @@ Users can mute notification types via `GET/PUT /api/notifications/preferences`.
 - Payment or refund events
 - Feature flag toggles (broadcast by audience)
 
-## Sending broadcasts (admin)
+## Sending notifications (admin)
+
+Admins with the `send_messages` permission send targeted or role-based notifications through a single endpoint:
 
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/api/notifications/notify-all` | Notify every user |
-| POST | `/api/notifications/notify-vendor` | Notify all vendors |
+| POST | `/api/notifications` | Send to `userId`, `userIds` or `roles` |
+
+```json
+{
+  "roles": ["vendor"],
+  "type": "admin",
+  "title": "Platform update",
+  "message": "New commission rates take effect on Monday."
+}
+```
+
+The response reports `count`, `smsSent`, `emailSent`, `pushSent` and `webPushSent`. Role targeting is bounded by the caller's role: `superAdmin` can target every role, while `majorAdmin` and `partnerAdmin` can target a subset.
 
 <Callout type="note">
-`notify-all` can be expensive — it fans out to every registered token. Use sparingly.
+Role broadcasts fan out to every matching user and registered token. Use `userId` or `userIds` for targeted notices.
 </Callout>
 
 ## Security notes

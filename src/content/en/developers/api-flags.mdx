@@ -1,0 +1,93 @@
+---
+title: Flags
+description: Reference for /api/admin/flags — raise, list and close entity flags.
+group: api
+order: 15
+updated: 2026-10-25
+---
+
+A flag records a concern against an entity. Flags are admin-only and every mutation is audited.
+
+Base path: `/api/admin`
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/flags` | `manage_flags` | List and filter flags |
+| POST | `/flags` | Admin | Raise a flag |
+| PUT | `/flags/:id/status` | Admin | Advance or close a flag |
+
+## List flags
+
+```http
+GET /api/admin/flags?status=open&severity=high&page=1&limit=25
+```
+
+Filters: `targetType`, `targetId`, `status`, `severity`, `page` (default `1`), `limit` (default `25`, max `100`).
+
+Response:
+
+```json
+{
+  "items": [],
+  "total": 0,
+  "page": 1,
+  "limit": 25
+}
+```
+
+Invalid filter values are ignored rather than rejected. Results are newest-first.
+
+## Raise a flag
+
+```http
+POST /api/admin/flags
+Content-Type: application/json
+
+{
+  "targetType": "product",
+  "targetId": "<productId>",
+  "reason": "Listing uses a brand name the seller does not own.",
+  "severity": "high",
+  "taskId": null
+}
+```
+
+Required: `targetType`, `targetId`, non-blank `reason`.
+
+`severity`: `low`, `medium`, `high`, `critical` (default `medium`).
+
+`taskId` is optional; when present the task must exist. Creating a task with `flagId` sets the reciprocal link on the flag.
+
+Returns `201` with `{ "flag": ... }`. New flags start at `open`.
+
+## Change status
+
+```http
+PUT /api/admin/flags/<flagId>/status
+Content-Type: application/json
+
+{
+  "status": "investigating",
+  "reason": "Checking the seller's trademark documents."
+}
+```
+
+Statuses: `open`, `investigating`, `resolved`, `dismissed`.
+
+- `resolved` and `dismissed` are terminal. A terminal flag cannot be reopened (`409 FLAG_ALREADY_CLOSED`).
+- Moving into a terminal status records `resolvedById` and `resolvedAt`. Moving between non-terminal statuses clears those fields.
+- The `reason` is recorded in the audit trail; if omitted, the controller records `status set to <status>`.
+
+## Errors
+
+| Code | Meaning |
+|------|---------|
+| `400 FLAG_REASON_REQUIRED` | The reason is missing |
+| `400 INVALID_FLAG_SEVERITY` | Severity is not in the allowed set |
+| `400 INVALID_FLAG_STATUS` | Status is not in the allowed set |
+| `404 FLAG_NOT_FOUND` | Flag does not exist |
+| `409 FLAG_ALREADY_CLOSED` | The flag is already resolved or dismissed |
+
+<Callout type="note">
+Use a task when the flag needs an owner or deadline. Use a note for discussion, and the flag status for the review outcome.
+</Callout>

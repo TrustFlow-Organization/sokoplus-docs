@@ -1,0 +1,120 @@
+---
+title: Permissions & roles
+description: How SokoPlus resolves an admin's effective permissions — role defaults, per-admin overrides, deny-wins, delegation and the reason requirement.
+group: platform
+order: 4
+updated: 2026-10-17
+---
+
+SokoPlus gates admin actions with **permission keys** — short strings like `manage_orders` or `manage_permissions`. A key is either held or not; there are no wildcards. This page covers how the effective set is resolved, who may hand a key out, and the audit rule that surrounds every mutating admin action.
+
+## The three layers
+
+An admin's effective permission set is resolved in a fixed order. Later layers can add or remove keys, but an explicit **deny always wins**:
+
+1. **superAdmin bypass** — a `superAdmin` holds every key, unconditionally and without any rows.
+2. **Role defaults** — `RolePermission` rows for the admin's role. If a role has never been seeded, the code defaults in `ROLE_PERMISSIONS` apply, so a new install behaves sensibly.
+3. **Per-admin overrides** — `AdminPermission` rows. An `effect: 'deny'` revokes a key even if the role default (or an explicit grant) includes it.
+
+```ts
+// src/services/permissionResolver.ts — effective set, deny-wins.
+function resolvePermissionSet({ role, roleDefaults, overrides }) {
+  const result = new Set(roleDefaults)          // layer 2: role baseline
+  if (role === 'superAdmin') return ALL_KEYS    // layer 1: bypass
+
+  const grants = new Set<string>()
+  const denies = new Set<string>()
+  for (const o of overrides) {
+    if (o.effect === 'deny') denies.add(o.permissionKey)
+    else if (o.enabled) grants.add(o.permissionKey)
+  }
+  for (const k of grants) result.add(k)         // layer 3: grant
+  for (const k of denies) result.delete(k)      // layer 3: deny wins
+  return result
+}
+```
+
+<Callout type="note">
+A legacy `AdminPermission` row written before the `effect` column existed is `effect: 'grant'` with `enabled: false`. Now that role defaults exist, that row is a **no-op** — not a deny. Only an explicit `effect: 'deny'` revokes a key. To fall an account back to its role default, delete the override (send `effect: null`).
+</Callout>
+
+## Permission keys
+
+Keys are grouped by domain. This list is canonical (see `PERMISSION_KEYS` in the backend and the `PermissionKey` union in `@trustflow/shared`).
+
+| Group | Keys |
+|-------|------|
+| People | `manage_clients`, `manage_official_vendors`, `manage_campus_vendors` |
+| Commerce | `manage_products`, `manage_services`, `manage_orders`, `manage_delivery`, `manage_delivery_zones`, `manage_categories` |
+| Trust | `moderate_reviews`, `moderate_feedback`, `manage_customer_reports`, `handle_support_tickets` |
+| Insights | `view_analytics`, `export_reports`, `view_map`, `use_global_search` |
+| Money | `manage_commissions`, `manage_refunds` |
+| Platform | `manage_settings`, `manage_activity_log`, `send_messages`, `send_newsletter` |
+| Management | `manage_notes`, `manage_flags`, `manage_tasks`, `assign_tasks` |
+| Administration | `manage_permissions`, `manage_regions`, `assign_regions`, `manage_admin_chat`, `manage_customercare` |
+
+## Delegation — who may grant what
+
+The **grant matrix** stops delegation from quietly becoming escalation. A `partnerAdmin` or `majorAdmin` may administer the admins below them, but may never hand out the platform-privilege keys:
+
+| Actor | May grant |
+|-------|-----------|
+| `superAdmin` | Every key |
+| `majorAdmin` | Every key **except** `manage_permissions`, `manage_regions`, `assign_regions` |
+| `partnerAdmin` | Every key **except** the same three |
+
+```ts
+export const SUPERADMIN_ONLY_KEYS = [
+  'manage_permissions', // editing the permission system itself
+  'manage_regions',     // creating/editing regions
+  'assign_regions',     // moving accounts between regions
+]
+
+export const GRANTABLE = {
+  superAdmin: PERMISSION_KEYS,
+  majorAdmin: PERMISSION_KEYS.filter(k => !SUPERADMIN_ONLY_KEYS.includes(k)),
+  partnerAdmin: PERMISSION_KEYS.filter(k => !SUPERADMIN_ONLY_KEYS.includes(k)),
+}
+```
+
+Two further guards apply on top of the key check and are enforced per-request, not by the matrix alone:
+
+- **Target tier** — a `partnerAdmin` may only manage `partnerAdmin` accounts; a `majorAdmin` may also manage `partnerAdmin` accounts, never other `majorAdmin`s or `superAdmin`s.
+- **Region scope** — a region-scoped admin may only act on accounts in their own region. An account with no region assignment fails closed.
+
+Writing a key the actor may not grant is **dropped, not rejected**: the request succeeds for the keys that are allowed and reports the dropped ones in `rejected`.
+
+## Reason requirement and auditing
+
+Every mutating admin action goes through `auditedAction`, which guarantees four things in order:
+
+1. The caller holds the required key (`403` otherwise; a `superAdmin` bypasses).
+2. A non-empty `reason` is present. Only a `superAdmin` may omit it, and the omission is recorded as `reasonOverride` so the exception is visible.
+3. The operation and its `AdminAction` audit row are written in **one transaction** — a failed action never leaves a row claiming success.
+4. An `ActivityLog` entry is appended to the global timeline.
+
+```ts
+await auditedAction(
+  req,
+  {
+    capability: 'assign_regions',
+    action: 'region.assign',
+    reason: req.body.reason,           // required unless superAdmin
+    target: { type: 'user', id: targetId },
+    metadata: { regionId },
+  },
+  async (tx) => {
+    await tx.user.update({ where: { id: targetId }, data: { regionId } })
+  },
+)
+```
+
+A missing reason is `400 REASON_REQUIRED`; a missing capability is `403 FORBIDDEN`.
+
+<Callout type="tip">
+The restricted **Admin API** page documents the endpoints that read and write these permissions (`/admin/permissions/...`, `/admin/regions/assign`).
+</Callout>
+
+## Front-end capabilities
+
+The web app exposes the same model through a small `resource × action` helper (`src/types/auth.ts`): `can('manage', 'regions')` resolves to a permission key (`assign_regions`/`manage_regions` → `regions`), falls back to a static role matrix for actions with no key, and is what the navigation and `<Can>` guards read. The backend still authorises on the coarse keys — the capability layer is a convenience for rendering, never a substitute for a server-side check.

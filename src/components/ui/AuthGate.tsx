@@ -19,7 +19,7 @@ export function RequireDocs({
   if (!session) {
     return (
       <Navigate
-        to={`/${lang}/redeem?next=${encodeURIComponent(target)}`}
+        to={`/login?lang=${lang}&next=${encodeURIComponent(target)}`}
         replace
       />
     )

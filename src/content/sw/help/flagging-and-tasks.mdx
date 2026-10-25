@@ -1,0 +1,78 @@
+---
+title: Bendera na kazi za msimamizi
+description: Jinsi ya kuibua wasiwasi kama bendera, kufuatilia uchunguzi wake, na kukabidhi kazi inayofuata kama kazi ya msimamizi.
+group: admin
+order: 3
+updated: 2026-10-25
+---
+
+Bendera na kazi hubadilisha wasiwasi kuwa kazi inayofuatiliwa. **Bendera** hurekodi kilichokosekana kwenye rekodi; **kazi** hurekodi nani atachukua hatua na lini.
+
+## Bendera
+
+Ibua bendera pale kitu kwenye rekodi kinahitaji ukaguzi — agizo linalotiliwa shaka, tangazo la upotoshaji, tofauti ya malipo au wasiwasi wa sera.
+
+| Sehemu | Thamani |
+|--------|---------|
+| Ukali | `low`, `medium`, `high`, `critical` |
+| Hali | `open`, `investigating`, `resolved`, `dismissed` |
+
+Bendera inahitaji sababu. Sababu ni sehemu ya ufuatiliaji wa ukaguzi, kwa hivyo iwe mahususi.
+
+### Mzunguko wa bendera
+
+`open → investigating → resolved` au `dismissed`
+
+- Hali yoyote isiyo ya mwisho inaweza kuhamia hali yoyote iliyoorodheshwa; hulazimiki kupitia `investigating` kwanza.
+- `resolved` na `dismissed` ni za mwisho. Bendera iliyofungwa haiwezi kufunguliwa tena — ibua bendera mpya ikiwa tatizo linarudi.
+- Kuingia katika hali ya mwisho hurekodi nani aliifunga na lini. Kutoka katika hali ya mwisho hakuruhusiwi.
+- Bendera inaweza kuunganishwa na kazi ya msimamizi. Kiungo huhifadhiwa kwenye rekodi zote mbili.
+
+## Kazi za msimamizi
+
+Kazi ni kazi iliyokabidhiwa yenye mzunguko wa mapitio. Ni wasimamizi pekee (`partnerAdmin`, `majorAdmin` au `superAdmin`) wanaoweza kuwa wapokeaji.
+
+| Sehemu | Maelezo |
+|--------|---------|
+| Kipaumbele | `low`, `normal`, `high`, `urgent` |
+| Tarehe ya mwisho | Hiari |
+| Hali | `OPEN`, `IN_PROGRESS`, `REVIEW`, `DONE`, `CONFIRMED`, `CANCELLED` |
+| Rekodi husika | Kiungo cha hiari |
+| Mkoa | Hurithiwa kutoka kwa mpokeaji au huwekwa na mkabidhi |
+
+### Mzunguko wa kazi
+
+| Kutoka | Kwenda | Nani anasogeza |
+|--------|--------|----------------|
+| `OPEN` | `IN_PROGRESS` | Mpokeaji |
+| `IN_PROGRESS` | `REVIEW` | Mpokeaji |
+| `REVIEW` | `DONE` | Mkabidhi |
+| `DONE` | `CONFIRMED` | Mkabidhi |
+| Hali yoyote isiyo ya mwisho | `CANCELLED` | Mkabidhi |
+
+`CONFIRMED` na `CANCELLED` ni za mwisho. `superAdmin` anaweza kufanya mabadiliko yoyote bila kujali mpokeaji au mkabidhi.
+
+Kila mabadiliko ya hali yanahitaji dokezo. Dokezo huhifadhiwa kama dokezo la ndani kwenye kazi, kwa hivyo historia ya kazi hufafanua kila makabidhiano.
+
+## Ruhusa
+
+| Uwezo | Ufunguo wa ruhusa |
+|-------|-------------------|
+| Kusoma na kuandika madokezo | `manage_notes` |
+| Kusoma bendera na kuziunda/kuzifunga | `manage_flags` |
+| Kusoma kazi na kusogeza kazi zilizokabidhiwa | `manage_tasks` |
+| Kukabidhi kazi mpya | `assign_tasks` |
+| Kusoma ufuatiliaji wa ukaguzi wa rekodi | `manage_activity_log` |
+
+## Kufanya kazi pamoja
+
+1. Ibua bendera kwa sababu na ukali mahususi.
+2. Chunguza na sasisha hali ya bendera.
+3. Ikiwa kazi inahitajika, unda kazi na uunganishe bendera.
+4. Ikabidhi kwa msimamizi mwenye mkoa na ruhusa sahihi.
+5. Sogeza kwenye mapitio; mkabidhi anafunga baada ya kukagua kazi.
+6. Funga bendera kwa dokezo fupi la utatuzi.
+
+<Callout type="warning">
+Kufunga kazi hakufungi bendera yake kiotomatiki. Tatua au kataa bendera kwa wazi ili wasiwasi usibaki wazi.
+</Callout>

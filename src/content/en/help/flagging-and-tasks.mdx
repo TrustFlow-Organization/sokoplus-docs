@@ -1,0 +1,78 @@
+---
+title: Flags and admin tasks
+description: How to raise a concern as a flag, track its investigation, and assign the follow-up work as an admin task.
+group: admin
+order: 3
+updated: 2026-10-25
+---
+
+Flags and tasks turn a concern into tracked work. A **flag** records what is wrong with a record; a **task** records who will act on it and by when.
+
+## Flags
+
+Raise a flag when something on an entity needs review — a suspicious order, a misleading listing, a payment mismatch or a policy concern.
+
+| Field | Values |
+|-------|--------|
+| Severity | `low`, `medium`, `high`, `critical` |
+| Status | `open`, `investigating`, `resolved`, `dismissed` |
+
+A flag needs a reason. The reason is part of the audit trail, so make it specific.
+
+### Flag lifecycle
+
+`open → investigating → resolved` or `dismissed`
+
+- Any non-terminal status can move to any listed status; you are not forced through `investigating` first.
+- `resolved` and `dismissed` are terminal. A closed flag cannot be reopened — raise a new flag if the issue returns.
+- Moving into a terminal status records who closed it and when. Moving back out of a terminal status is not allowed.
+- A flag can be linked to an admin task. The link is stored on both records.
+
+## Admin tasks
+
+A task is assigned work with an explicit review lifecycle. Only admins (`partnerAdmin`, `majorAdmin` or `superAdmin`) can be assignees.
+
+| Field | Notes |
+|-------|-------|
+| Priority | `low`, `normal`, `high`, `urgent` |
+| Due date | Optional |
+| Status | `OPEN`, `IN_PROGRESS`, `REVIEW`, `DONE`, `CONFIRMED`, `CANCELLED` |
+| Related record | Optional entity link |
+| Region | Inherited from the assignee or set by the assigner |
+
+### Task lifecycle
+
+| From | To | Who moves it |
+|------|----|--------------|
+| `OPEN` | `IN_PROGRESS` | Assignee |
+| `IN_PROGRESS` | `REVIEW` | Assignee |
+| `REVIEW` | `DONE` | Assigner |
+| `DONE` | `CONFIRMED` | Assigner |
+| Any non-terminal status | `CANCELLED` | Assigner |
+
+`CONFIRMED` and `CANCELLED` are terminal. A `superAdmin` can perform any transition regardless of assignee or assigner.
+
+Every status change requires a note. The note is stored as an internal note on the task, so the task history explains each hand-off.
+
+## Permissions
+
+| Capability | Permission key |
+|------------|----------------|
+| Read and write notes | `manage_notes` |
+| Read flags and create/close them | `manage_flags` |
+| Read tasks and transition assigned work | `manage_tasks` |
+| Assign new tasks | `assign_tasks` |
+| Read the entity audit trail | `manage_activity_log` |
+
+## Working together
+
+1. Raise a flag with a precise reason and severity.
+2. Investigate and update the flag status.
+3. If follow-up work is needed, create a task and link the flag.
+4. Assign it to an admin with the right region and permission.
+5. Move it through review; the assigner closes it after checking the work.
+6. Close the flag with a short resolution note.
+
+<Callout type="warning">
+Closing a task does not close its flag automatically. Resolve or dismiss the flag explicitly so the concern is not left open.
+</Callout>

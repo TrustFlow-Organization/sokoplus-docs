@@ -3,7 +3,7 @@ title: Muundo wa data
 description: Modeli kuu za Prisma zinazounda SokoPlus — watumiaji, biashara, fedha na uendeshaji.
 group: platform
 order: 1
-updated: 2026-08-07
+updated: 2026-10-25
 ---
 
 SokoPlus huhifadhi kila kitu kwenye **PostgreSQL** na kuimodelisha kwa **Prisma**. Ukurasa huu unaelezea modeli kuu.
@@ -51,7 +51,9 @@ SokoPlus huhifadhi kila kitu kwenye **PostgreSQL** na kuimodelisha kwa **Prisma*
 
 | Model | Madhumuni |
 |-------|---------|
-| `Message` | Ujumbe wa moja kwa moja baina ya watumiaji |
+| `Message` | Ujumbe wa moja kwa moja (hutumika pia na mazungumzo ya channel) |
+| `Conversation` | Channel ya `DIRECT`, `ADMIN_DIRECT`, `ADMIN_COMPANY`, `ADMIN_REGION` au `CUSTOMERCARE`, yenye `pairKey` |
+| `ConversationParticipant` | Uanachama wa wazi wa channel + `lastReadAt` kwa kila mshiriki |
 | `Notification` | Arifa za mfumo |
 | `SupportTicket` | Mijadala ya usaidizi wa wateja |
 | `CustomerReport` | Ripoti za bug/lalamiko/kipengele |
@@ -65,13 +67,30 @@ SokoPlus huhifadhi kila kitu kwenye **PostgreSQL** na kuimodelisha kwa **Prisma*
 | `PlatformSetting` | Usanidi wa key-value (pamoja na swichi za vipengele vya ecommerce) |
 | `PlatformContent` | Kurasa za CMS (faragha, sheria) |
 | `FAQ` | Maswali yanayoulizwa mara kwa mara |
-| `ActivityLog` | Rekodi ya ukaguzi (audit trail) |
-| `AdminPermission` | Vigezo vya ruhusa kwa kila msimamizi |
+| `ActivityLog` | Ufuatiliaji wa jumla wa matukio |
+| `AdminPermission` | Mabadiliko ya ruhusa kwa msimamizi mmoja (`effect` = `grant` \| `deny`; `deny` hushinda) |
+| `RolePermission` | Chaguo-msingi za jukumu — safu moja kwa `role` + `permissionKey` |
+| `AdminAction` | Rekodi ya ukaguzi inayoshikanishwa na kipengele: `actorId`, `capability`, `targetType`/`targetId`, `reason`, `metadata` |
+| `AdminNote` | Dokezo la ndani kwenye `targetType`/`targetId` yoyote, yenye majibu kupitia `parentId`, kufuta kwa upole na `originalBody` kwa superAdmin pekee |
+| `EntityFlag` | Wasiwasi kuhusu kipengele chochote: `reason`, `severity`, `status`, `taskId` ya hiari |
+| `AdminTask` | Kazi ya msimamizi iliyokabidhiwa: mpokeaji/mkabidhi, kipaumbele, tarehe ya mwisho, `status` ya mapitio, viungo vya kipengele/bendera/mkoa |
+| `Region` / `MajorAdminRegion` | Mikoa na ugawaji wa mkoa wa kila msimamizi mkuu |
 | `OtpCode` | Nenosiri la wakati mmoja |
 | `TokenBlacklist` | Tokeni zilizobatilishwa |
 | `WorkingHours` | Ratiba za biashara |
 | `DeliveryZone` | Maeneo ya usafirishaji + ada |
-| `ShowcaseProject` | Miradi ya nje iliyokuzwa |
+
+## Ruhusa za msimamizi
+
+Ufikiaji wa msimamizi huamuliwa kwa tabaka tatu, hivyo unahitaji modeli tatu pamoja na jedwali la ukaguzi:
+
+| Model | Madhumuni |
+|-------|-----------|
+| `RolePermission` | **Chaguo-msingi la jukumu** — safu moja kwa `role` + `permissionKey` (`enabled`). Hupanga msingi ambao kila msimamizi wa jukumu hilo hurithi. Jukumu lisilo na safu hupata chaguo-msingi za msimbo katika `ROLE_PERMISSIONS`. |
+| `AdminPermission` | **Mabadiliko ya msimamizi mmoja** — safu moja kwa `adminId` + `permissionKey`, yenye `effect` (`grant`/`deny`) na `grantedBy`. `deny` hushinda chaguo-msingi la jukumu kila wakati. |
+| `AdminAction` | **Rekodi ya ukaguzi inayoshikanishwa na kipengele** kwa kila kitendo cha msimamizi — `actorId`, `actorRole`, `capability`, `action`, `targetType`/`targetId`, `reason`, `metadata`, `ipAddress`. Huwa kando ya `ActivityLog`, ambayo hubaki kuwa ufuatiliaji wa jumla. |
+
+`superAdmin` ana kila funguo bila safu yoyote kwenye jedwali hizi mbili za ruhusa. Angalia **Ruhusa na majukumu** kwa mpangilio kamili wa uamuzi na matrix ya ugawaji.
 
 ## Suborders
 
@@ -102,6 +121,16 @@ Sehemu za ngazi ya agizo pia zipo kwa ajili ya mtiririko wa zamani/wa muuzaji mm
 Safu za `OrderItem` zinanakili bidhaa wakati wa ununuzi (`productId`, `productName`, `productPrice`, `quantity`, `imageUrl`) pamoja na lahaja iliyochaguliwa (`variantId`, `variantName`, `variantType`) na `selectedSpecs` / `notes`. Kila kipengee kinaunganishwa na suborder inayomiliki kupitia `suborderId`.
 
 Endpoints zinazofanya kazi kwenye sehemu ya biashara moja (`/orders/:id/status`, `/orders/:id/verify-recipient`, `/delivery/assign`, `/delivery/:id/verify`) zinakubali `suborderId` ya hiari ili kulenga suborder sahihi.
+
+## Msingi wa usimamizi wa msimamizi
+
+| Model | Mzunguko |
+|-------|----------|
+| `AdminNote` | Madokezo ya ndani pekee. `parentId` huunda jibu; `deletedAt` ni kufuta kwa upole. `originalBody` huhifadhi hariri ya kwanza kwa ukaguzi wa superAdmin. |
+| `EntityFlag` | `open → investigating → resolved / dismissed`; ukali `low`/`medium`/`high`/`critical`. Bendera za mwisho haziwezi kufunguliwa. Bendera inaweza kuunganishwa na kazi moja kupitia `taskId`. |
+| `AdminTask` | `OPEN → IN_PROGRESS → REVIEW → DONE → CONFIRMED`; `CANCELLED` kutoka hali yoyote isiyo ya mwisho. Mpokeaji husogeza hatua mbili za kwanza; mkabidhi hufunga. `flagId`, `relatedType`/`relatedId`, `regionId` huunganisha kazi. |
+
+Kila mabadiliko ya kazi huandika `AdminNote` kwenye `targetType: "task"` ili historia ya kazi ieleze kila makabidhiano. Tazama **Bendera** na **Kazi za msimamizi** kwa kanuni za API.
 
 ## Muundo wa kufuta kwa upole
 

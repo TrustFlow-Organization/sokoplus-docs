@@ -19,7 +19,7 @@ Orders, cart and bookings cover the purchasing flow.
 | POST | `/cart/clear` | JWT | Clear cart |
 
 <Callout type="note">
-The `/api/cart` HTTP endpoints are currently **frozen** — the router is not mounted in `app.js` (cart is frontend-held). Authenticated checkout still reads items from the `CartItem` table. See the [data model](./data-model).
+The `/api/cart` HTTP endpoints are currently **frozen** — the router is not mounted in `src/app.ts` (cart is frontend-held). Authenticated checkout still reads items from the `CartItem` table. See the [data model](./data-model).
 </Callout>
 
 ## Orders (`/api/orders`)
@@ -31,15 +31,21 @@ The `/api/cart` HTTP endpoints are currently **frozen** — the router is not mo
 | GET | `/orders` | JWT | Your orders |
 | GET | `/orders/vendor` | vendor+ | Orders with your products |
 | GET | `/orders/:id` | JWT | Single order (owner, delivery person or vendor) |
-| GET | `/orders/track/:orderCode` | Public | Track a guest/express order by reference code |
+| GET | `/orders/track/:orderCode` | Public | Track an order by reference code |
+| POST | `/orders/track/:orderCode` | Public | Track a registered order with `password` (keeps it out of URLs/logs) |
+| POST | `/orders/track/:orderCode/reveal` | Public | Reveal a guest's hand-over codes with `phoneNumber` |
+| POST | `/orders/:orderCode/resend-tracking` | Public | Resend guest tracking SMS (`phoneNumber` must match) |
 | POST | `/orders/:orderCode/pay` | Public | Initiate payment for a guest order by reference code |
-| POST | `/orders/:orderCode/cancel` | Public | Cancel a guest order by reference code (optional phone guard) |
+| POST | `/orders/:orderCode/cancel` | Public | Cancel a guest order by reference code (`phoneNumber` + `reason` required) |
 | PUT | `/orders/:id/status` | vendor+ | Update status (optional `suborderId`) |
 | PUT | `/orders/:id/verify-recipient` | JWT | Client confirms receipt (optional `suborderId`) |
 | POST | `/orders/verify-qr` | delivery/vendor/admin | Verify a suborder via its QR payload |
 | PUT | `/orders/:id/deliver` | delivery/vendor+ | Mark delivered, record `collectedAmount` (optional `suborderId`) |
 | PUT | `/orders/:id/negotiate` | vendor+ | Set `negotiatedAmount` for a suborder |
 | PUT | `/orders/:id/cancel` | JWT | Cancel (pending/confirmed only, records `cancelReason`) |
+| DELETE | `/orders/:id` | vendor+ | Soft-delete an undelivered order containing your products |
+| GET | `/orders/:id/photos` | vendor+ | Proof-photo requirements and uploaded photos |
+| PUT | `/orders/:id/photos` | vendor+ | Replace proof photos for `stage` (`product`/`packaging`) |
 | GET | `/orders/sales-report` | vendor | Period sales report |
 
 ### Suborders
@@ -127,6 +133,7 @@ Multi-vendor orders generate one **recipient code per suborder**, verified again
 | GET | `/bookings/vendor` | service_provider | Provider's bookings |
 | PUT | `/bookings/:id/accept` | service_provider | Accept + generate booking code |
 | PUT | `/bookings/:id/reject` | service_provider | Reject |
+| PUT | `/bookings/:id/status` | service_provider | Move through `confirmed`/`in_progress`/`completed`/`cancelled` |
 | POST | `/bookings/verify-qr` | service_provider/admin | Verify a booking QR |
 
 ## Delivery (`/api/delivery`)
@@ -135,10 +142,19 @@ Multi-vendor orders generate one **recipient code per suborder**, verified again
 |--------|------|------|-------------|
 | POST | `/delivery/create` | vendor+ | Create delivery person |
 | GET | `/delivery/my-team` | vendor+ | List team |
+| GET | `/delivery/all` | admin | List all delivery people |
+| GET | `/delivery/:id` | partnerAdmin/superAdmin | One delivery person |
+| PUT | `/delivery/:id` | vendor+ | Update delivery person |
+| DELETE | `/delivery/:id` | vendor+/admin | Remove delivery person |
 | POST | `/delivery/assign` | vendor+ | Assign a suborder (→ shipped) |
 | GET | `/delivery/my-deliveries` | delivery | Assigned deliveries |
 | GET | `/delivery/my-stats` | delivery | Delivery stats |
 | PUT | `/delivery/:id/verify` | delivery | Verify handover (optional `suborderId`) |
+| PUT | `/delivery/:id/verify-person` | vendor+ | Verify a delivery person's identity |
+| PUT | `/delivery/:id/status` | admin | Set delivery person active/offline |
 | PUT | `/delivery/my-status` | delivery | Active/offline toggle |
 | GET | `/delivery/calculate` | Public | Delivery fee for location |
 | GET | `/delivery/zones/public` | Public | Business delivery zones |
+| GET | `/delivery/zones` | vendor+ | Your delivery zones |
+| POST | `/delivery/zones` | vendor+ | Create/update a delivery zone |
+| DELETE | `/delivery/zones/:id` | vendor+ | Delete a delivery zone |

@@ -1,0 +1,29 @@
+---
+title: Pakia media
+description: Rejea ya /api/upload — upakiaji wa selfie, hati (KYC) na picha za mazungumzo.
+group: api
+order: 13
+updated: 2026-10-25
+---
+
+Uploads hudhibitiwa na `multer` (in-memory, kikomo cha faili **5 MB**) na kupelekwa kwenye Cloudinary. Endpoint zote zinahitaji **JWT**.
+
+## Upload / KYC (`/api/upload`)
+
+| Method | Path | Auth | Maelezo |
+|--------|------|------|-------------|
+| POST | `/upload/selfie` | JWT | Pakia picha ya selfie — multipart, field `file` |
+| POST | `/upload/document` | JWT | Pakia hati (KYC) — multipart, field `file` |
+| POST | `/upload/chat` | JWT | Pakia picha ya mazungumzo — multipart, field `file` |
+
+Kila ombi hupokea faili moja hadi **5 MB**. Selfie na picha za mazungumzo hupokea `image/*`; hati za KYC hupokea `image/*` au `application/pdf`. Zaidi ya faili moja au faili kubwa hurudisha `400`.
+
+<Callout type="note">
+Kwa uthibitisho wa KYC (selfie, hati, hati ya biashara) kila faili huingizwa moja kwa moja. Pakia selfie kwanza, kisha hati.
+</Callout>
+
+Majibu yanarudisha URL ya Cloudinary na ujumbe:
+
+```json
+{ "url": "https://res.cloudinary.com/…/selfie.jpg", "message": "Selfie uploaded" }
+```

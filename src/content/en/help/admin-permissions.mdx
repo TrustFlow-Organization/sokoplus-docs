@@ -1,0 +1,53 @@
+---
+title: Who can do what — admin permissions
+description: How admin access works on SokoPlus — role defaults, per-admin adjustments, the grant matrix and region scope, in plain language.
+group: admin
+order: 1
+updated: 2026-10-17
+---
+
+This page explains how admin access is decided on SokoPlus. It is written for admins and for the people who set them up. For the technical detail, see **Permissions & roles** under the developer docs.
+
+## The starting point: role defaults
+
+Every admin account has a role, and every role comes with a **default set of abilities**:
+
+| Role | In one sentence |
+|------|-----------------|
+| **Partner Admin** | Runs day-to-day operations — users, vendors, orders, categories and support. |
+| **Major Admin** | Everything a Partner Admin does, plus regional management and the ability to set up Partner Admins. |
+| **Super Admin** | Full control, including the permission system, regions and system health. |
+
+When you create a new admin, they can do whatever their role allows — you do not have to switch anything on by hand.
+
+## Adjusting one admin
+
+Sometimes one person needs a little more, or a little less, than their role. Open their row and you will see three choices for each ability:
+
+- **Inherit** — use the role default. This is the normal state.
+- **Allow** — give this one admin the ability, even if the role does not have it.
+- **Deny** — take the ability away from this one admin, even if the role has it.
+
+<Callout type="note">
+**Deny always wins.** If a role allows something but you deny it for one admin, that admin does not have it. To undo a deny, set the ability back to **Inherit**.
+</Callout>
+
+Changes are collected as you edit and only take effect when you press **Save** — nothing is written until then.
+
+## The grant matrix
+
+The grant matrix answers one question: **who is allowed to hand out which ability?**
+
+- A **Super Admin** can grant anything.
+- A **Major Admin** and **Partner Admin** can grant the everyday abilities, but **not** the three platform controls: managing permissions, managing regions, and moving accounts between regions.
+- These three stay with the **Super Admin** only. This is what stops delegation from quietly becoming escalation.
+
+If you try to grant something your role cannot hand out, that choice is simply skipped — the rest of your changes still save. The **Grant Matrix** tab in the Permissions screen shows you exactly what your role may grant.
+
+## Region scope
+
+Some admins are tied to a **region**. A region-scoped admin only sees and acts on accounts in their region. Moving an account to a different region is a platform control (the `assign_regions` ability), so it is normally reserved for Super Admins.
+
+## Every change is recorded
+
+Any administrative action that changes data asks for a **reason** and is saved with it. The reason is attached to the action so a manager can later see *why* something happened, not just *what* happened. Only a Super Admin can act without a reason, and even then the action is marked as having skipped the reason.

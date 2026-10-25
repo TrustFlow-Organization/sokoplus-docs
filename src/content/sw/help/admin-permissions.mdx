@@ -1,0 +1,53 @@
+---
+title: Nani anaweza kufanya nini — ruhusa za msimamizi
+description: Jinsi ufikiaji wa msimamizi unavyofanya kazi SokoPlus — chaguo-msingi za jukumu, mabadiliko ya msimamizi mmoja, matrix ya ugawaji na upeo wa mkoa, kwa lugha rahisi.
+group: admin
+order: 1
+updated: 2026-10-17
+---
+
+Ukurasa huu unaeleza jinsi ufikiaji wa msimamizi unavyoamuliwa SokoPlus. Umeandikwa kwa wasimamizi na kwa wale wanaowaandaa. Kwa maelezo ya kiufundi, angalia **Ruhusa na majukumu** kwenye nyaraka za msanidi.
+
+## Mwanzo: chaguo-msingi za jukumu
+
+Kila akaunti ya msimamizi ina jukumu, na kila jukumu lina **seti ya uwezo ya moja kwa moja**:
+
+| Jukumu | Kwa sentensi moja |
+|------|--------------------|
+| **Partner Admin** | Huendesha shughuli za kila siku — watumiaji, wauzaji, maagizo, kategoria na usaidizi. |
+| **Major Admin** | Kila kitu Partner Admin hufanya, pamoja na usimamizi wa mkoa na uwezo wa kuanzisha Partner Admins. |
+| **Super Admin** | Udhibiti kamili, ikiwemo mfumo wa ruhusa, mikoa na afya ya mfumo. |
+
+Unapounda msimamizi mpya, anaweza kufanya kila kitu jukumu lake linamruhusu — huhitaji kuwasilisha kitu chochote kwa mkono.
+
+## Kurekebisha msimamizi mmoja
+
+Wakati mwingine mtu mmoja anahitaji kidogo zaidi, au kidogo chini, ya jukumu lake. Fungua safu yake na utaona machaguo matatu kwa kila uwezo:
+
+- **Inherit (Rithi)** — tumia chaguo-msingi la jukumu. Hii ni hali ya kawaida.
+- **Allow (Ruhusu)** — mpe msimamizi huyu mmoja uwezo huo, hata kama jukumu hauna.
+- **Deny (Kataa)** — mnyang'anye msimamizi huyu mmoja uwezo huo, hata kama jukumu unayo.
+
+<Callout type="note">
+**Deny hushinda kila wakati.** Kama jukumu linaruhusu kitu lakini unakataa kwa msimamizi mmoja, msimamizi huyo hana kitu hicho. Kuondoa deny, rudisha uwezo kuwa **Inherit**.
+</Callout>
+
+Mabadiliko hukusanywa unapohariri na huanza kutumika tu unapobonyeza **Save** — hakuna kinachoandikwa kabla ya hapo.
+
+## Matrix ya ugawaji
+
+Matrix ya ugawaji hujibu swali moja: **nani anaruhusiwa kutoa uwezo upi?**
+
+- **Super Admin** anaweza kutoa kitu chochote.
+- **Major Admin** na **Partner Admin** wanaweza kutoa uwezo wa kila siku, lakini **si** vidhibiti vitatu vya jukwaa: kusimamia ruhusa, kusimamia mikoa, na kuhamisha akaunti kati ya mikoa.
+- Hivi vitatu vinabaki kwa **Super Admin** pekee. Hii ndiyo inayozuia ugawaji usigeuke kuwa upanuzi wa mamlaka.
+
+Ukijaribu kutoa kitu ambacho jukumu lako haliwezi kutoa, chaguo hilo huachwa tu — mabadiliko yako mengine bado huhifadhiwa. Kichupo cha **Grant Matrix** kwenye skrini ya Ruhusa kinaonyesha hasa kile jukumu lako linaruhusiwa kutoa.
+
+## Upeo wa mkoa
+
+Wasimamizi wengine wamefungwa na **mkoa**. Msimamizi mwenye mkoa huona na kutenda kwa akaunti za mkoa wake pekee. Kuhamisha akaunti kwenda mkoa mwingine ni udhibiti wa jukwaa (uwezo wa `assign_regions`), hivyo kwa kawaida ni kwa Super Admins pekee.
+
+## Kila mabadiliko hurekodiwa
+
+Kitendo chochote cha msimamizi kinachobadilisha data huomba **sababu** na huhifadhiwa nayo. Sababu hushikanishwa na kitendo ili meneja aweze baadaye kuona *kwa nini* kitu kilitokea, si *kitu gani* pekee. Super Admin pekee anaweza kutenda bila sababu, na hata hivyo kitendo hurekodiwa kuwa kiliruka sharti la sababu.

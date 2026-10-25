@@ -1,0 +1,139 @@
+---
+title: Mazungumzo na ujumbe
+description: Rejea ya /api/messages — mazungumzo ya moja kwa moja, kurasa za mjadala na modeli ya channel.
+group: api
+order: 17
+updated: 2026-10-25
+---
+
+Ujumbe hulindwa na swichi ya kipengele `messaging`. API iliyowekwa inaunga mkono **mazungumzo ya moja kwa moja** kati ya watumiaji wawili.
+
+Njia ya msingi: `/api/messages`
+
+| Method | Path | Auth | Maelezo |
+|--------|------|------|---------|
+| POST | `/` | JWT | Tuma ujumbe wa moja kwa moja |
+| GET | `/conversations` | JWT | Mazungumzo ya mtumiaji wa sasa |
+| GET | `/conversations/:id/messages` | JWT | Ujumbe wa mjadala |
+| PUT | `/conversations/:id/read` | JWT | Weka alama ya kusoma mazungumzo |
+| GET | `/conversations/:id/catalog` | JWT | Bidhaa/huduma za mshiriki mwingine |
+| GET | `/unread/count` | JWT | Jumla ya ujumbe usiosomwa |
+| GET | `/recipients/search` | JWT | Tafuta wapokeaji wanaowezekana |
+
+## Tuma ujumbe
+
+```http
+POST /api/messages
+Content-Type: application/json
+
+{
+  "receiverId": "<uuid>",
+  "content": "Je, rangi ya bluu bado inapatikana?",
+  "attachment": null
+}
+```
+
+`receiverId` lazima iwe UUID halali ya mtumiaji. `content` hukatwa na kuwekewa kikomo cha herufi 2000. Angalau `content` au `attachment` inahitajika. Huwezi kujitumia ujumbe.
+
+Maumbo ya viambatisho:
+
+| Aina | Sehemu |
+|------|--------|
+| `product` | `id`, `name`, `price` si lazima, `image` si lazima |
+| `service` | `id`, `name`, `price` si lazima, `image` si lazima |
+| `image` | `name`, `image` (http/https) |
+
+Ujumbe wa kwanza kati ya watumiaji wawili huunda mazungumzo. Jibu:
+
+```json
+{
+  "conversationId": "...",
+  "message": {
+    "id": "...",
+    "conversationId": "...",
+    "senderId": "...",
+    "receiverId": "...",
+    "content": "...",
+    "createdAt": "...",
+    "isRead": false
+  },
+  "receiver": { "id": "...", "fullName": "...", "avatarUrl": "..." }
+}
+```
+
+Mpokeaji hupata matukio ya socket `message:new` na `notification:new`. Kwenye ujumbe wa kwanza kutoka kwa mtumaji huyu, backend pia hujaribu taarifa ya SMS/barua pepe kwa kutumia mapendeleo ya mpokeaji.
+
+## Orodhesha mazungumzo
+
+```http
+GET /api/messages/conversations?page=1&limit=20
+```
+
+`limit` juu `50`. Hurudisha:
+
+```json
+{
+  "conversations": [
+    {
+      "id": "...",
+      "lastMessageAt": "...",
+      "otherUser": {
+        "id": "...",
+        "fullName": "...",
+        "avatarUrl": "...",
+        "role": "vendor",
+        "businessName": "..."
+      },
+      "lastMessage": { "id": "...", "senderId": "...", "content": "...", "isRead": true },
+      "unread": 0
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "limit": 20,
+  "hasMore": false
+}
+```
+
+## Soma mjadala
+
+```http
+GET /api/messages/conversations/<id>/messages?before=2026-10-25T12:00:00.000Z&limit=50
+```
+
+`before` ni muhuri wa muda wa ISO wenye offset; `limit` juu `50`. Wanachama wa mazungumzo pekee wanaweza kusoma mjadala. Ujumbe hurudishwa kutoka wa zamani hadi mapya ndani ya ukurasa, na `hasMore` huonyesha kama kuna ujumbe wa zamani zaidi.
+
+## Weka alama ya kusoma
+
+```http
+PUT /api/messages/conversations/<id>/read
+```
+
+Huweka alama ya kusoma kwa ujumbe unaoingia kwenye mazungumzo. Mshiriki mwingine hupata `conversation:read`.
+
+## Catalog na wapokeaji
+
+```http
+GET /api/messages/conversations/<id>/catalog
+GET /api/messages/recipients/search?q=amina&limit=8
+```
+
+`catalog` hurudisha bidhaa/huduma hai za mshiriki mwingine kwa kushiriki kwenye mazungumzo. Utafutaji wa wapokeaji hulinganisha majina ya watumiaji na majina ya biashara; watumiaji waliosimamishwa, waliofukuzwa na waliofutwa hawaitajwi.
+
+## Modeli ya channel
+
+`Conversation` na `ConversationParticipant` pia huunda channel za msimamizi:
+
+| Aina | Ufunguo |
+|------|---------|
+| `DIRECT` | Jozi ya watumiaji iliyopangwa |
+| `ADMIN_DIRECT` | Jozi ya wasimamizi iliyopangwa |
+| `ADMIN_COMPANY` | `admin-company` |
+| `ADMIN_REGION` | `admin-region:<regionId>` |
+| `CUSTOMERCARE` | `customercare:<sourceId>` |
+
+Huduma za channel za msimamizi na CustomerCare zipo kwenye `chatChannelService`, ikiwa ni pamoja na idadi ya ujumbe usiosomwa kwa mshiriki na ufichaji wa mtumaji wa CustomerCare. **Hazijawekwa kwenye HTTP API bado**; usijenge muunganisho dhidi yao hadi njia zitakapotangazwa.
+
+<Callout type="warning">
+Njia za zamani `/messages/:userId`, `/messages/:id/read` na `/messages/read/:userId` hazipo tena. Tumia njia za mazungumzo zilizo hapo juu.
+</Callout>

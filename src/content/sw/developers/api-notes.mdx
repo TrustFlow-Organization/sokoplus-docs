@@ -1,0 +1,103 @@
+---
+title: Madokezo
+description: Rejea ya /api/admin/notes — madokezo ya ndani, majibu, kufuta kwa upole na ukaguzi.
+group: api
+order: 14
+updated: 2026-10-25
+---
+
+Madokezo ya ndani huweka muktadha wa wasimamizi pekee kwenye kipengele chochote. Njia zote zinahitaji jukumu la msimamizi (`partnerAdmin`, `majorAdmin` au `superAdmin`) na uwezo wa `manage_notes`. Kila mabadiliko hukaguliwa.
+
+Njia ya msingi: `/api/admin`
+
+| Method | Path | Auth | Maelezo |
+|--------|------|------|---------|
+| GET | `/notes` | `manage_notes` | Orodhesha madokezo ya kipengele |
+| POST | `/notes` | Msimamizi | Unda dokezo au jibu |
+| PUT | `/notes/:id` | Msimamizi | Hariri dokezo lako |
+| DELETE | `/notes/:id` | Msimamizi | Futa dokezo lako kwa upole |
+
+## Orodhesha madokezo
+
+```http
+GET /api/admin/notes?targetType=order&targetId=<orderId>
+```
+
+Query inayohitajika: `targetType`, `targetId`.
+
+Hiari: `includeDeleted=1` (superAdmin pekee).
+
+Jibu:
+
+```json
+{
+  "items": [
+    {
+      "id": "...",
+      "targetType": "order",
+      "targetId": "...",
+      "authorId": "...",
+      "body": "Mteja alipiga; anwani imethibitishwa.",
+      "parentId": null,
+      "visibility": "internal",
+      "edited": false,
+      "originalBody": null,
+      "deletedAt": null,
+      "author": { "id": "...", "fullName": "Amina", "email": "...", "role": "majorAdmin" }
+    }
+  ]
+}
+```
+
+Madokezo hurudishwa kuanzia ya zamani hadi mapya pamoja na muhtasari wa mwandishi. `originalBody` hujazwa kwa `superAdmin` pekee; wasimamizi wengine hupata `null` pamoja na `edited`.
+
+## Unda dokezo
+
+```http
+POST /api/admin/notes
+Content-Type: application/json
+
+{
+  "targetType": "order",
+  "targetId": "<orderId>",
+  "body": "Mteja alipiga; anwani imethibitishwa.",
+  "parentId": null,
+  "visibility": "internal",
+  "attachments": null
+}
+```
+
+`targetType`, `targetId` na `body` isiyo tupu vinahitajika. `parentId` ya jibu lazima ielekeze dokezo lililopo, lisilofutwa kwenye lengo lile lile. `visibility` kwa sasa inakubali `internal` pekee.
+
+Huruhisha `201` na `{ "note": ... }`. Kuunda dokezo hutuma `admin-note:changed` kwa wasimamizi walioounganishwa.
+
+## Hariri dokezo
+
+```http
+PUT /api/admin/notes/<noteId>
+Content-Type: application/json
+
+{ "body": "Imesahihishwa: mteja alithibitisha anwani mpya." }
+```
+
+Mwandishi wa awali pekee anaweza kuhariri. Sehemu zinazoweza kusasishwa: `body`, `visibility`, `attachments`. Ikiwa maudhui yatabadilika, maudhui ya kwanza ya kabla ya kuhariri huhifadhiwa kwenye `originalBody` kwa ukaguzi wa superAdmin.
+
+## Futa dokezo
+
+```http
+DELETE /api/admin/notes/<noteId>
+```
+
+Kufuta kwa upole. Mwandishi au `superAdmin` pekee anaweza kufuta. Hurudisha dokezo lililosasishwa; safu hubaki kwenye hifadhidata.
+
+## Ukaguzi
+
+| Kitendo | Uwezo | Sababu ya ukaguzi |
+|---------|-------|-------------------|
+| `note.create` | `manage_notes` | Maudhui ya dokezo |
+| `note.update` | `manage_notes` | Maudhui mapya (au `note updated`) |
+| `note.delete` | `manage_notes` | Maudhui yaliyopo (au `note deleted`) |
+
+<Callout type="note">
+Usomaji hulindwa na `manage_notes`; njia za mabadiliko hutegemea audited action kulazimisha uwezo huo ndani ya transaction.
+</Callout>

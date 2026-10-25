@@ -1,0 +1,131 @@
+---
+title: Admin tasks
+description: Reference for /api/admin/tasks — assignment, review lifecycle and transitions.
+group: api
+order: 16
+updated: 2026-10-25
+---
+
+Admin tasks assign work to an admin with an explicit review lifecycle. All routes require an admin role.
+
+Base path: `/api/admin`
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/tasks/mine` | `manage_tasks` | Tasks assigned to you |
+| GET | `/tasks` | `manage_tasks` | All tasks, filterable |
+| POST | `/tasks` | `assign_tasks` | Create and assign a task |
+| GET | `/tasks/:id` | `manage_tasks` | Task plus its notes |
+| POST | `/tasks/:id/transition` | `manage_tasks` | Move a task |
+
+## Statuses and transitions
+
+| From | Allowed to | Actor |
+|------|------------|-------|
+| `OPEN` | `IN_PROGRESS`, `CANCELLED` | Assignee / assigner |
+| `IN_PROGRESS` | `REVIEW`, `CANCELLED` | Assignee / assigner |
+| `REVIEW` | `DONE`, `CANCELLED` | Assigner |
+| `DONE` | `CONFIRMED`, `CANCELLED` | Assigner |
+| `CONFIRMED` | — | Terminal |
+| `CANCELLED` | — | Terminal |
+
+The assignee drives `IN_PROGRESS` and `REVIEW`. Only the assigner may set `DONE`, `CONFIRMED` or `CANCELLED`. A `superAdmin` may perform any valid transition.
+
+Priorities: `low`, `normal` (default), `high`, `urgent`.
+
+## List tasks
+
+```http
+GET /api/admin/tasks?status=OPEN&assigneeId=<adminId>&page=1&limit=25
+```
+
+Filters: `assigneeId`, `assignerId`, `status`, `relatedType`, `relatedId`, `page`, `limit` (max `100`).
+
+`GET /tasks/mine` is the same list forced to `assigneeId = <current user>`; it accepts `status`, `page` and `limit`.
+
+Both return:
+
+```json
+{ "items": [], "total": 0, "page": 1, "limit": 25 }
+```
+
+## Create a task
+
+```http
+POST /api/admin/tasks
+Content-Type: application/json
+
+{
+  "title": "Verify the flagged business documents",
+  "description": "Check the TIN certificate and ownership letter.",
+  "assigneeId": "<adminId>",
+  "dueAt": "2026-10-30T17:00:00.000Z",
+  "priority": "high",
+  "relatedType": "business",
+  "relatedId": "<businessId>",
+  "flagId": "<flagId>",
+  "regionId": null,
+  "reason": "High-severity flag needs review before payout."
+}
+```
+
+Required: `title`, `assigneeId`. The assignee must be a `partnerAdmin`, `majorAdmin` or `superAdmin`.
+
+Optional: `description`, `dueAt` (valid ISO date), `priority`, `relatedType`, `relatedId`, `flagId`, `regionId`, `reason`.
+
+`regionId` defaults to the assigner's region, then the assignee's region. Linking `flagId` sets `taskId` on the flag.
+
+Returns `201` with `{ "task": ... }` and notifies the assignee.
+
+## Get one task
+
+```http
+GET /api/admin/tasks/<taskId>
+```
+
+Returns `{ "task": ..., "notes": [...] }`, with the task's internal note history.
+
+## Transition a task
+
+```http
+POST /api/admin/tasks/<taskId>/transition
+Content-Type: application/json
+
+{
+  "to": "REVIEW",
+  "note": "Documents match the registry; ready for assigner review."
+}
+```
+
+`to` must be a valid next status and `note` is required and non-blank. The note is stored as an internal `AdminNote` on the task.
+
+Response:
+
+```json
+{
+  "task": { "status": "REVIEW" },
+  "next": ["DONE", "CANCELLED"]
+}
+```
+
+`next` lists the statuses reachable from the new state.
+
+## Errors
+
+| Code | Meaning |
+|------|---------|
+| `400 TASK_TITLE_REQUIRED` | Missing or blank title |
+| `400 INVALID_ASSIGNEE` | Assignee is not an admin |
+| `400 INVALID_TASK_PRIORITY` | Unknown priority |
+| `400 INVALID_DUE_DATE` | `dueAt` is not a valid date |
+| `400 INVALID_TASK_STATUS` | Target status is unknown |
+| `400 TASK_NOTE_REQUIRED` | Transition note is missing |
+| `403 NOT_TASK_ASSIGNEE` | Assignee-only transition by another admin |
+| `403 NOT_TASK_ASSIGNER` | Assigner-only transition by another admin |
+| `404 TASK_NOT_FOUND` | Task does not exist |
+| `409 INVALID_TASK_TRANSITION` | Transition is not in the lifecycle |
+| `409 TASK_ALREADY_CLOSED` | Task is `CONFIRMED` or `CANCELLED` |
+
+<Callout type="note">
+A transition is audited with capability `manage_tasks`; creation is audited with `assign_tasks`. Both require a reason, and task transitions use the note as that reason.
+</Callout>

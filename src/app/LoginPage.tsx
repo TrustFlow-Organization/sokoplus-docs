@@ -1,9 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { KeyRound, Loader2, Lock, Mail } from 'lucide-react'
-import { docsApi } from '@/lib/docsApi'
-import { setSession } from '@/lib/docsAuth'
+import { KeyRound, Lock, Mail } from 'lucide-react'
+import { signInDeveloper } from '@/lib/developerAuth'
 import { usePageMeta } from '@/lib/seo'
 import { isLang, DEFAULT_LANG, type Lang } from '@/i18n'
 
@@ -18,7 +17,6 @@ export function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [busy, setBusy] = useState(false)
 
   usePageMeta({
     title: `${t('loginTitle')} | SokoPlus Docs`,
@@ -27,24 +25,14 @@ export function LoginPage() {
     canonicalPath: `/${lang}/login`,
   })
 
-  async function onSubmit(e: FormEvent) {
+  function onSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
-    setBusy(true)
-    try {
-      const res = await docsApi.login(email.trim(), password)
-      setSession({
-        token: res.token,
-        role: 'superAdmin',
-        name: 'Super Admin',
-        email: email.trim().toLowerCase(),
-      })
-      navigate(next, { replace: true })
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('loginFailed'))
-    } finally {
-      setBusy(false)
+    if (!signInDeveloper(email, password)) {
+      setError(t('loginFailed'))
+      return
     }
+    navigate(next, { replace: true })
   }
 
   return (
@@ -105,11 +93,10 @@ export function LoginPage() {
 
           <button
             type="submit"
-            disabled={busy}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-btn px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-btn-hover disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-btn px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-btn-hover"
           >
-            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
-            {busy ? t('signingIn') : t('signIn')}
+            <Lock className="h-4 w-4" />
+            {t('signIn')}
           </button>
         </form>
       </div>

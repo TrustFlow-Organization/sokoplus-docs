@@ -19,7 +19,7 @@ Maagizo, rukoba ya ununuzi na kuhifadhi nafasi vinahusika na mzunguko wa ununuzi
 | POST | `/cart/clear` | JWT | Futa rukoba |
 
 <Callout type="note">
-Endpoints za `/api/cart` kwa sasa zimezimwa (frozen) — router haujafungwa kwenye `app.js` (rukoba huhifadhiwa upande wa mteja). Checkout inayohitaji akaunti bado inasoma vipengee kutoka kwenye jedwali la `CartItem`. Angalia [data model](./data-model).
+Endpoints za `/api/cart` kwa sasa zimezimwa (frozen) — router haujafungwa kwenye `src/app.ts` (rukoba huhifadhiwa upande wa mteja). Checkout inayohitaji akaunti bado inasoma vipengee kutoka kwenye jedwali la `CartItem`. Angalia [data model](./data-model).
 </Callout>
 
 ## Maagizo (`/api/orders`)
@@ -31,15 +31,21 @@ Endpoints za `/api/cart` kwa sasa zimezimwa (frozen) — router haujafungwa kwen
 | GET | `/orders` | JWT | Maagizo yako |
 | GET | `/orders/vendor` | vendor+ | Maagizo yenye bidhaa zako |
 | GET | `/orders/:id` | JWT | Agizo moja (mmiliki, mshirika wa usafirishaji au muuzaji) |
-| GET | `/orders/track/:orderCode` | Public | Fuata agizo la mgeni kwa msimbo wa rejea |
+| GET | `/orders/track/:orderCode` | Public | Fuata agizo kwa msimbo wa rejea |
+| POST | `/orders/track/:orderCode` | Public | Fuata agizo la akaunti kwa `password` (haitumiki kwenye URL/logs) |
+| POST | `/orders/track/:orderCode/reveal` | Public | Fichua misimbo ya makabidhiano ya mgeni kwa `phoneNumber` |
+| POST | `/orders/:orderCode/resend-tracking` | Public | Tuma tena SMS ya ufuatiliaji kwa mgeni (`phoneNumber` lazima ilingane) |
 | POST | `/orders/:orderCode/pay` | Public | Anzisha malipo ya agizo la mgeni kwa msimbo wa rejea |
-| POST | `/orders/:orderCode/cancel` | Public | Ghairi agizo la mgeni kwa msimbo wa rejea (ulinzi wa simu wa hiari) |
+| POST | `/orders/:orderCode/cancel` | Public | Ghairi agizo la mgeni kwa msimbo wa rejea (`phoneNumber` + `reason` vinahitajika) |
 | PUT | `/orders/:id/status` | vendor+ | Sasisha hali (`suborderId` ya hiari) |
 | PUT | `/orders/:id/verify-recipient` | JWT | Mteja anathibitisha kupokea (`suborderId` ya hiari) |
 | POST | `/orders/verify-qr` | delivery/vendor/admin | Thibitisha suborder kupitia payload yake ya QR |
 | PUT | `/orders/:id/deliver` | delivery/vendor+ | Weka alama ya kukabidhiwa, rekodi `collectedAmount` (`suborderId` ya hiari) |
 | PUT | `/orders/:id/negotiate` | vendor+ | Weka `negotiatedAmount` kwa suborder |
 | PUT | `/orders/:id/cancel` | JWT | Ghairi (pending/confirmed pekee, inarekodi `cancelReason`) |
+| DELETE | `/orders/:id` | vendor+ | Futa kwa soft delete agizo lisilokabidhiwa lenye bidhaa zako |
+| GET | `/orders/:id/photos` | vendor+ | Mahitaji ya picha za uthibitisho na picha zilizopakiwa |
+| PUT | `/orders/:id/photos` | vendor+ | Badilisha picha za uthibitisho kwa `stage` (`product`/`packaging`) |
 | GET | `/orders/sales-report` | vendor | Ripoti ya mauzo ya kipindi |
 
 ### Suborders
@@ -127,6 +133,7 @@ Maagizo ya wauzaji wengi yanatengeneza **msimbo mmoja wa mpokeaji kwa kila subor
 | GET | `/bookings/vendor` | service_provider | Nafasi za mtoa huduma |
 | PUT | `/bookings/:id/accept` | service_provider | Kubali + tengeneza msimbo wa kuhifadhi nafasi |
 | PUT | `/bookings/:id/reject` | service_provider | Kataa |
+| PUT | `/bookings/:id/status` | service_provider | Hamisha kupitia `confirmed`/`in_progress`/`completed`/`cancelled` |
 | POST | `/bookings/verify-qr` | service_provider/admin | Thibitisha QR ya kuhifadhi nafasi |
 
 ## Usafirishaji (`/api/delivery`)
@@ -135,10 +142,19 @@ Maagizo ya wauzaji wengi yanatengeneza **msimbo mmoja wa mpokeaji kwa kila subor
 |--------|------|------|-------------|
 | POST | `/delivery/create` | vendor+ | Unda mshirika wa usafirishaji |
 | GET | `/delivery/my-team` | vendor+ | Orodhesha timu |
+| GET | `/delivery/all` | admin | Orodhesha wafanyakazi wote wa usafirishaji |
+| GET | `/delivery/:id` | partnerAdmin/superAdmin | Mfanyakazi mmoja wa usafirishaji |
+| PUT | `/delivery/:id` | vendor+ | Sasisha mfanyakazi wa usafirishaji |
+| DELETE | `/delivery/:id` | vendor+/admin | Ondoa mfanyakazi wa usafirishaji |
 | POST | `/delivery/assign` | vendor+ | Kabidhi suborder (→ shipped) |
 | GET | `/delivery/my-deliveries` | delivery | Usafirishaji uliokabidhiwa |
 | GET | `/delivery/my-stats` | delivery | Takwimu za usafirishaji |
 | PUT | `/delivery/:id/verify` | delivery | Thibitisha kukabidhiwa (`suborderId` ya hiari) |
+| PUT | `/delivery/:id/verify-person` | vendor+ | Thibitisha utambulisho wa mfanyakazi wa usafirishaji |
+| PUT | `/delivery/:id/status` | admin | Weka mfanyakazi active/offline |
 | PUT | `/delivery/my-status` | delivery | Badilisha hali ya Active/offline |
 | GET | `/delivery/calculate` | Public | Ada ya usafirishaji kwa eneo |
 | GET | `/delivery/zones/public` | Public | Zones za usafirishaji za biashara |
+| GET | `/delivery/zones` | vendor+ | Zones zako za usafirishaji |
+| POST | `/delivery/zones` | vendor+ | Unda/sasisha zone ya usafirishaji |
+| DELETE | `/delivery/zones/:id` | vendor+ | Ondoa zone ya usafirishaji |

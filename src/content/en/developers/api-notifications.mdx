@@ -3,7 +3,7 @@ title: Notifications & messaging
 description: Reference for /api/notifications, /api/messages, /api/content and support endpoints.
 group: api
 order: 8
-updated: 2026-08-03
+updated: 2026-10-25
 ---
 
 These endpoints handle user-to-user communication and platform content.
@@ -16,25 +16,28 @@ These endpoints handle user-to-user communication and platform content.
 | PUT | `/notifications/:id/read` | JWT | Mark single read |
 | PUT | `/notifications/read-all` | JWT | Mark all read |
 | DELETE | `/notifications/clear` | JWT | Clear all |
-| POST | `/notifications/register-token` | JWT | Register web-push subscription |
-| PUT | `/notifications/update-expo-token` | JWT | Update Expo push token |
+| POST | `/notifications/register-token` | JWT | Register an Expo token, or a web-push subscription with `type: "web"` |
 | GET | `/notifications/preferences` | JWT | Get preferences |
 | PUT | `/notifications/preferences` | JWT | Update preferences |
-| POST | `/notifications/notify-all` | admin | Notify everyone |
-| POST | `/notifications/notify-vendor` | admin | Notify vendors |
+| POST | `/notifications` | `send_messages` | Send to `userId`, `userIds` or `roles` |
 
-Preferences: `order_updates`, `promotions`, `general`.
+Preferences: `order_updates`, `promotions`, `general`, `channel` (`sms`/`email`).
 
 ## Messaging (`/api/messages`)
 
+Direct conversations only. Requires the `messaging` feature flag.
+
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| POST | `/messages` | JWT | Send message |
-| GET | `/messages/conversations` | JWT | Conversations + unread counts |
-| GET | `/messages/:userId` | JWT | Thread with a user |
-| PUT | `/messages/:id/read` | JWT | Mark single read |
-| PUT | `/messages/read/:userId` | JWT | Mark all from a user read |
+| POST | `/messages` | JWT | Send a direct message (`receiverId`, `content`, optional `attachment`) |
+| GET | `/messages/conversations` | JWT | Conversations + unread counts (`page`, `limit`) |
+| GET | `/messages/conversations/:id/messages` | JWT | Thread messages (`before`, `limit`) |
+| PUT | `/messages/conversations/:id/read` | JWT | Mark a conversation read |
+| GET | `/messages/conversations/:id/catalog` | JWT | Products/services the other participant offers |
 | GET | `/messages/unread/count` | JWT | Total unread |
+| GET | `/messages/recipients/search` | JWT | Search message recipients (`q`, `limit`) |
+
+The `Conversation` model also stores admin and CustomerCare channel kinds, but only the direct-message routes above are currently mounted. See **Conversations & messages** for the model and rollout status.
 
 ## Content & support (`/api/content`)
 

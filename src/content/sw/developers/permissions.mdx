@@ -1,0 +1,120 @@
+---
+title: Ruhusa na majukumu
+description: Jinsi SokoPlus huamua ruhusa zenye nguvu za msimamizi — chaguo-msingi za jukumu, mabadiliko ya msimamizi mmoja, deny-wins, ugawaji na sharti la sababu.
+group: platform
+order: 4
+updated: 2026-10-17
+---
+
+SokoPlus hutumia **funguo za ruhusa** kudhibiti vitendo vya msimamizi. Funguo ni mfuatano mfupi kama `manage_orders` au `manage_permissions`. Hifadhi ya `superAdmin` ina kila funguo bila masharti; wengine hupata funguo kupitia tabaka zilizoainishwa hapa chini.
+
+## Tabaka tatu
+
+Ruhusa zenye nguvu za msimamizi huamuliwa kwa mpangilio huu, na **deny hushinda kila wakati**:
+
+1. **Uepukaji wa superAdmin** — `superAdmin` ana kila funguo, bila masharti na bila safu yoyote.
+2. **Chaguo-msingi za jukumu** — safu za `RolePermission` kwa jukumu la msimamizi. Jukumu lisilowahi kupandwa hupata chaguo-msingi za msimbo katika `ROLE_PERMISSIONS`.
+3. **Mabadiliko ya msimamizi mmoja** — safu za `AdminPermission`. `effect: 'deny'` huondoa funguo hata kama chaguo-msingi la jukumu (au grant ya wazi) inaijumuisha.
+
+```ts
+// src/services/permissionResolver.ts — seti yenye nguvu, deny-wins.
+function resolvePermissionSet({ role, roleDefaults, overrides }) {
+  const result = new Set(roleDefaults)          // tabaka 2: msingi wa jukumu
+  if (role === 'superAdmin') return ALL_KEYS    // tabaka 1: uepukaji
+
+  const grants = new Set<string>()
+  const denies = new Set<string>()
+  for (const o of overrides) {
+    if (o.effect === 'deny') denies.add(o.permissionKey)
+    else if (o.enabled) grants.add(o.permissionKey)
+  }
+  for (const k of grants) result.add(k)         // tabaka 3: grant
+  for (const k of denies) result.delete(k)      // tabaka 3: deny hushinda
+  return result
+}
+```
+
+<Callout type="note">
+Safu ya zamani ya `AdminPermission` iliyoandikwa kabla ya safu ya `effect` ni `effect: 'grant'` na `enabled: false`. Kwa kuwa sasa kuna chaguo-msingi za jukumu, safu hiyo **haifanyi kitu** — si deny. Ni `effect: 'deny'` ya wazi pekee inayoondoa funguo. Kurudisha akaunti kwenye chaguo-msingi la jukumu, futa mabadiliko (tuma `effect: null`).
+</Callout>
+
+## Funguo za ruhusa
+
+Funguo zimepangwa kwa kundi. Orodha hii ni rasmi (`PERMISSION_KEYS` kwenye backend na muungano wa `PermissionKey` katika `@trustflow/shared`).
+
+| Kundi | Funguo |
+|-------|--------|
+| Watu | `manage_clients`, `manage_official_vendors`, `manage_campus_vendors` |
+| Biashara | `manage_products`, `manage_services`, `manage_orders`, `manage_delivery`, `manage_delivery_zones`, `manage_categories` |
+| Uaminifu | `moderate_reviews`, `moderate_feedback`, `manage_customer_reports`, `handle_support_tickets` |
+| Maarifa | `view_analytics`, `export_reports`, `view_map`, `use_global_search` |
+| Fedha | `manage_commissions`, `manage_refunds` |
+| Jukwaa | `manage_settings`, `manage_activity_log`, `send_messages`, `send_newsletter` |
+| Usimamizi | `manage_notes`, `manage_flags`, `manage_tasks`, `assign_tasks` |
+| Utawala | `manage_permissions`, `manage_regions`, `assign_regions`, `manage_admin_chat`, `manage_customercare` |
+
+## Ugawaji — nani anaweza kutoa nini
+
+**Matrix ya ugawaji** huzuia ugawaji usigeuke kuwa upanuzi wa mamlaka. `partnerAdmin` au `majorAdmin` anaweza kusimamia wasimamizi walio chini yake, lakini hawezi kutoa funguo za mamlaka ya jukwaa:
+
+| Mtendaji | Anaweza kutoa |
+|----------|---------------|
+| `superAdmin` | Kila funguo |
+| `majorAdmin` | Kila funguo **isipokuwa** `manage_permissions`, `manage_regions`, `assign_regions` |
+| `partnerAdmin` | Kila funguo **isipokuwa** hizo tatu |
+
+```ts
+export const SUPERADMIN_ONLY_KEYS = [
+  'manage_permissions', // kuhariri mfumo wa ruhusa wenyewe
+  'manage_regions',     // kuunda/kuhariri mikoa
+  'assign_regions',     // kuhamisha akaunti kati ya mikoa
+]
+
+export const GRANTABLE = {
+  superAdmin: PERMISSION_KEYS,
+  majorAdmin: PERMISSION_KEYS.filter(k => !SUPERADMIN_ONLY_KEYS.includes(k)),
+  partnerAdmin: PERMISSION_KEYS.filter(k => !SUPERADMIN_ONLY_KEYS.includes(k)),
+}
+```
+
+Vikwazo viwili vya ziada hutekelezwa kwa kila ombi, si kwa matrix pekee:
+
+- **Ngazi ya lengo** — `partnerAdmin` anaweza kusimamia akaunti za `partnerAdmin` pekee; `majorAdmin` anaweza pia kusimamia akaunti za `partnerAdmin`, lakini kamwe si `majorAdmin` mwingine au `superAdmin`.
+- **Upeo wa mkoa** — msimamizi mwenye mkoa anaweza kutenda kwa akaunti za mkoa wake pekee. Akaunti isiyo na mkoa hukataliwa (fail closed).
+
+Kuandika funguo ambayo mtendaji hawezi kutoa **huachwa, si kukataliwa**: ombi hufanikiwa kwa funguo anazoruhusiwa, na zilizoachwa hurudishwa kwenye `rejected`.
+
+## Sharti la sababu na ukaguzi
+
+Kila kitendo cha msimamizi kinachobadilisha data hupitia `auditedAction`, inayotoa dhamana hizi kwa mpangilio:
+
+1. Mtendaji ana funguo ya kitendo (vinginevyo `403`). `superAdmin` huepuka ukaguzi lakini bado hukaguliwa.
+2. Sababu isiyo tupu ipo. `superAdmin` pekee anaweza kuiacha; ukweli kwamba aliiacha hurekodiwa kama `reasonOverride`.
+3. Kitendo na safu ya `AdminAction` huandikwa katika muamala mmoja, hivyo kitendo kilichoshindwa hakiachi safu inayodai kilifanikiwa.
+4. Kumbukumbu ya `ActivityLog` huongezwa kwenye ufuatiliaji wa jumla.
+
+```ts
+await auditedAction(
+  req,
+  {
+    capability: 'assign_regions',
+    action: 'region.assign',
+    reason: req.body.reason,
+    target: { type: 'targetType', id: 'targetId' },
+    metadata: { regionId },
+  },
+  async (tx) => {
+    await tx.user.update({ where: { id: 'targetId' }, data: { regionId } })
+  },
+)
+```
+
+Sababu ikikosekana hurejesha `400 REASON_REQUIRED`; ruhusa ikikosekana hurejesha `403 FORBIDDEN`.
+
+<Callout type="tip">
+Ukurasa wa **Admin API** (uliowekewa kikomo) unaandika endpoints zinazosoma na kuandika ruhusa hizi (`/admin/permissions/...`, `/admin/regions/assign`).
+</Callout>
+
+## Uwezo wa upande wa mteja
+
+Wavuti huonyesha modeli hii kwa kisaidizi cha `resource × action` (`src/types/auth.ts`): `can('manage', 'regions')` huamua funguo ya ruhusa (`assign_regions`/`manage_regions` → `regions`), huangukia kwenye matrix ya majukumu kwa vitendo visivyo na funguo, na ndiyo inayosomwa na urambazaji na `<Can>`. Backend bado huidhinisha kwa funguo rasmi — tabaka la uwezo ni kisaidizi cha uonyeshaji, kamwe si mbadala wa ukaguzi wa upande wa seva.

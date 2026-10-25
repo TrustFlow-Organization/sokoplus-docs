@@ -1,0 +1,48 @@
+---
+title: Madokezo ya ndani
+description: Jinsi timu za wasimamizi wanavyoacha, kujibu na kusimamia madokezo ya ndani kuhusu watumiaji, biashara, maagizo, kazi na rekodi nyingine.
+group: admin
+order: 2
+updated: 2026-10-25
+---
+
+Madokezo ya ndani huwezesha wasimamizi kuweka muktadha kwenye rekodi bila kuuonyesha kwa mteja, muuzaji au mtoa huduma. Madokezo huonekana kwenye paneli ya historia ya rekodi na huonekana kwa wasimamizi pekee.
+
+## Wapi madokezo yanaweza kuwekwa
+
+Dokezo huwekwa kwenye kipengele kimoja kupitia `targetType` na `targetId`. Malengo ya kawaida ni watumiaji, biashara, bidhaa, huduma, maagizo, nafasi zilizowekwa, bendera na kazi.
+
+Madokezo ni ya **ndani** kila wakati. Hakuna chaguo la kuyapa uonekano kwa mteja.
+
+## Kuandika na kujibu
+
+- Kila dokezo linahitaji maudhui; madokezo matupu hukataliwa.
+- Tumia jibu kuweka mjadala chini ya dokezo moja. Jibu lazima liwe la rekodi ile ile ya dokezo la mzazi.
+- Madokezo huonyeshwa kuanzia ya zamani hadi mapya ili historia isomeke kama mazungumzo.
+- Viambatisho ni hiari na huhifadhiwa pamoja na dokezo.
+
+## Kuhariri na kufuta
+
+| Kitendo | Nani anaweza |
+|---------|--------------|
+| Kuhariri dokezo | Mwandishi wa awali |
+| Kufuta dokezo | Mwandishi wa awali au `superAdmin` |
+| Kuona dokezo lililofutwa | `superAdmin`, kwa ombi la wazi la kujumuisha yaliyofutwa |
+
+Kufuta ni kufuta kwa upole: safu hubaki kwenye hifadhidata na historia huhifadhiwa. Kuhariri huhifadhi maudhui ya awali ya kwanza; ni `superAdmin` pekee anayeweza kuona maandishi hayo ya awali.
+
+## Ruhusa na ukaguzi
+
+- Kusoma madokezo kunahitaji `manage_notes`.
+- Kila kuunda, kuhariri na kufuta hurekodiwa kwenye ufuatiliaji wa ukaguzi wa msimamizi pamoja na mtendaji, lengo na sababu.
+- Kwa dokezo jipya, maudhui ya dokezo ndiyo sababu ya ukaguzi. Kwa kuhariri au kufuta, controller hurekodi maudhui ya dokezo au sababu fupi mbadala.
+
+<Callout type="note">
+Paneli za madokezo zilizo wazi husasishwa papo hapo msimamizi mwingine anapoongeza, kuhariri au kufuta dokezo. Ishara ya wakati halisi huwa na ID ya dokezo na lengo pekee — dokezo kamili husomwa tena kupitia API inayokagua ruhusa.
+</Callout>
+
+## Mbinu bora
+
+- Andika kwa msimamizi anayefuata, sio kwako mwenyewe tu: eleza ulichokagua na ulichoamua.
+- Tumia bendera na kazi kwa kazi inayohitaji mmiliki au tarehe ya mwisho; tumia madokezo kwa muktadha.
+- Usiweke nenosiri, funguo za API, taarifa kamili za malipo au siri za mteja kwenye dokezo.

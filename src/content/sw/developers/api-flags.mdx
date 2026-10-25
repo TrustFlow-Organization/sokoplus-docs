@@ -1,0 +1,88 @@
+---
+title: Bendera
+description: Rejea ya /api/admin/flags — kuibua, kuorodhesha na kufunga bendera za kipengele.
+group: api
+order: 15
+updated: 2026-10-25
+---
+
+Bendera hurekodi wasiwasi kuhusu kipengele. Bendera ni za wasimamizi pekee na kila mabadiliko hukaguliwa.
+
+Njia ya msingi: `/api/admin`
+
+| Method | Path | Auth | Maelezo |
+|--------|------|------|---------|
+| GET | `/flags` | `manage_flags` | Orodhesha na chuja bendera |
+| POST | `/flags` | Msimamizi | Ibua bendera |
+| PUT | `/flags/:id/status` | Msimamizi | Sogeza au funga bendera |
+
+## Orodhesha bendera
+
+```http
+GET /api/admin/flags?status=open&severity=high&page=1&limit=25
+```
+
+Vichujio: `targetType`, `targetId`, `status`, `severity`, `page` (chaguo-msingi `1`), `limit` (chaguo-msingi `25`, juu `100`).
+
+Jibu:
+
+```json
+{ "items": [], "total": 0, "page": 1, "limit": 25 }
+```
+
+Thamani batili za kichujio hupuuzwa badala ya kukataliwa. Matokeo ni mapya kwanza.
+
+## Ibua bendera
+
+```http
+POST /api/admin/flags
+Content-Type: application/json
+
+{
+  "targetType": "product",
+  "targetId": "<productId>",
+  "reason": "Tangazo linatumia jina la chapa ambayo muuzaji hana umiliki wake.",
+  "severity": "high",
+  "taskId": null
+}
+```
+
+Vinavyohitajika: `targetType`, `targetId`, `reason` isiyo tupu.
+
+`severity`: `low`, `medium`, `high`, `critical` (chaguo-msingi `medium`).
+
+`taskId` ni hiari; ikiwa ipo, kazi lazima iwepo. Kuunda kazi na `flagId` huweka kiungo cha kurudisha kwenye bendera.
+
+Huruhisha `201` na `{ "flag": ... }`. Bendera mpya huanza kwa `open`.
+
+## Badilisha hali
+
+```http
+PUT /api/admin/flags/<flagId>/status
+Content-Type: application/json
+
+{
+  "status": "investigating",
+  "reason": "Tunakagua nyaraka za alama ya biashara za muuzaji."
+}
+```
+
+Hali: `open`, `investigating`, `resolved`, `dismissed`.
+
+- `resolved` na `dismissed` ni za mwisho. Bendera ya mwisho haiwezi kufunguliwa tena (`409 FLAG_ALREADY_CLOSED`).
+- Kuingia katika hali ya mwisho hurekodi `resolvedById` na `resolvedAt`. Kubadilika kati ya hali zisizo za mwisho hufuta sehemu hizo.
+- `reason` hurekodiwa kwenye ufuatiliaji wa ukaguzi; ikiwa haipo, controller hurekodi `status set to <status>`.
+
+## Makosa
+
+| Code | Maana |
+|------|-------|
+| `400 FLAG_REASON_REQUIRED` | Sababu haipo |
+| `400 INVALID_FLAG_SEVERITY` | Ukali hauko kwenye seti inayoruhusiwa |
+| `400 INVALID_FLAG_STATUS` | Hali haiko kwenye seti inayoruhusiwa |
+| `404 FLAG_NOT_FOUND` | Bendera haipo |
+| `409 FLAG_ALREADY_CLOSED` | Bendera tayari imetatuliwa au imekataliwa |
+
+<Callout type="note">
+Tumia kazi pale bendera inahitaji mmiliki au tarehe ya mwisho. Tumia dokezo kwa mjadala, na hali ya bendera kwa matokeo ya mapitio.
+</Callout>

@@ -7,6 +7,7 @@ export interface GroupDef {
 export const SECTION_GROUPS: Record<Section, GroupDef[]> = {
   help: [
     { key: 'getting-started' },
+    { key: 'admin' },
     { key: 'buyers' },
     { key: 'vendors' },
     { key: 'service-providers' },

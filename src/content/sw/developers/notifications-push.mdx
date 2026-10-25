@@ -3,7 +3,7 @@ title: Arifa na push
 description: Jinsi arifa za mfumo na ujumbe wa push unavyofanya kazi — Expo push, web push, mapendeleo.
 group: platform
 order: 3
-updated: 2026-08-03
+updated: 2026-10-25
 ---
 
 Arifa zinawafanya watumiaji kuwa na taarifa. Backend huzitoa kupitia njia tatu: **ndani ya programu (in-app)**, **Expo push** (simu), na **web push** (kivinjari).
@@ -18,17 +18,23 @@ Arifa zinawafanya watumiaji kuwa na taarifa. Backend huzitoa kupitia njia tatu: 
 
 ## Kujisajili kwa push
 
+Simu na wavuti zote hutumia endpoint moja, `POST /api/notifications/register-token`:
+
 ```bash
 # Simu (tokeni ya Expo)
-curl -X PUT https://api.sokopluss.co.tz/api/notifications/update-expo-token \
+curl -X POST https://api.sokopluss.co.tz/api/notifications/register-token \
   -H "Authorization: Bearer <token>" \
-  -d '{"expoPushToken": "ExponentPushToken[...]"}'
+  -H "Content-Type: application/json" \
+  -d '{"token": "ExponentPushToken[...]"}'
 
 # Wavuti (usajili wa push)
 curl -X POST https://api.sokopluss.co.tz/api/notifications/register-token \
   -H "Authorization: Bearer <token>" \
-  -d '{"subscription": {"endpoint": "...", "keys": {"auth": "...", "p256dh": "..."}}}'
+  -H "Content-Type: application/json" \
+  -d '{"type": "web", "endpoint": "...", "p256dh": "...", "auth": "..."}'
 ```
+
+Kwa web push, tumia `type: "web"` pamoja na `endpoint`, `p256dh` na `auth` za usajili. Bila `type`, `token` huhifadhiwa kama tokeni ya Expo ya mtumiaji.
 
 ## Mapendeleo
 
@@ -39,6 +45,7 @@ Watumiaji wanaweza kukandamiza aina za arifa kupitia `GET/PUT /api/notifications
 | `order_updates` | Hali ya agizo, usafirishaji, escrow |
 | `promotions` | Matangazo, kukuza tangazo, kuponi |
 | `general` | Mengine yote |
+| `channel` | `sms` (chaguo-msingi) au `email` kwa ujumbe usio wa push |
 
 ## Kinachochochea arifa
 
@@ -49,15 +56,27 @@ Watumiaji wanaweza kukandamiza aina za arifa kupitia `GET/PUT /api/notifications
 - Matukio ya malipo au kurudishiwa fedha
 - Mabadiliko ya swichi za vipengele (yatangazwa kwa hadhira)
 
-## Kutuma matangazo (msimamizi)
+## Kutuma arifa (msimamizi)
+
+Wasimamizi wenye ruhusa ya `send_messages` hutuma arifa kwa mtu mmoja au kwa jukumu kupitia endpoint moja:
 
 | Mbinu | Njia | Maelezo |
 |--------|------|-------------|
-| POST | `/api/notifications/notify-all` | Aarifu kila mtumiaji |
-| POST | `/api/notifications/notify-vendor` | Aarifu wauzaji wote |
+| POST | `/api/notifications` | Tuma kwa `userId`, `userIds` au `roles` |
+
+```json
+{
+  "roles": ["vendor"],
+  "type": "admin",
+  "title": "Taarifa ya jukwaa",
+  "message": "Viwango vipya vya komisheni vinaanza Jumatatu."
+}
+```
+
+Jibu hurudisha `count`, `smsSent`, `emailSent`, `pushSent` na `webPushSent`. Uteuzi wa majukumu una mipaka kwa jukumu la mtumaji: `superAdmin` anaweza kulenga kila jukumu, ilhali `majorAdmin` na `partnerAdmin` wanaweza kulenga kundi dogo.
 
 <Callout type="note">
-`notify-all` inaweza kuwa ghali — inatumwa kwa kila tokeni iliyosajiliwa. Itumie kwa uchache.
+Matangazo ya majukumu hutumwa kwa kila mtumiaji na tokeni iliyosajiliwa. Tumia `userId` au `userIds` kwa arifa mahususi.
 </Callout>
 
 ## Vidokezo vya usalama

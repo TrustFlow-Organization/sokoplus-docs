@@ -1,0 +1,103 @@
+---
+title: Notes
+description: Reference for /api/admin/notes — internal notes, replies, soft delete and audit.
+group: api
+order: 14
+updated: 2026-10-25
+---
+
+Internal notes attach admin-only context to any entity. All routes require an admin role (`partnerAdmin`, `majorAdmin` or `superAdmin`) and the `manage_notes` capability. Every mutation is audited.
+
+Base path: `/api/admin`
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/notes` | `manage_notes` | List an entity's notes |
+| POST | `/notes` | Admin | Create a note or reply |
+| PUT | `/notes/:id` | Admin | Edit your note |
+| DELETE | `/notes/:id` | Admin | Soft-delete your note |
+
+## List notes
+
+```http
+GET /api/admin/notes?targetType=order&targetId=<orderId>
+```
+
+Required query: `targetType`, `targetId`.
+
+Optional: `includeDeleted=1` (superAdmin only).
+
+Response:
+
+```json
+{
+  "items": [
+    {
+      "id": "...",
+      "targetType": "order",
+      "targetId": "...",
+      "authorId": "...",
+      "body": "Customer called; address confirmed.",
+      "parentId": null,
+      "visibility": "internal",
+      "edited": false,
+      "originalBody": null,
+      "deletedAt": null,
+      "author": { "id": "...", "fullName": "Amina", "email": "...", "role": "majorAdmin" }
+    }
+  ]
+}
+```
+
+Notes are returned oldest-first with an author summary. `originalBody` is only populated for `superAdmin`; other admins receive `null` plus `edited`.
+
+## Create a note
+
+```http
+POST /api/admin/notes
+Content-Type: application/json
+
+{
+  "targetType": "order",
+  "targetId": "<orderId>",
+  "body": "Customer called; address confirmed.",
+  "parentId": null,
+  "visibility": "internal",
+  "attachments": null
+}
+```
+
+`targetType`, `targetId` and a non-blank `body` are required. A reply's `parentId` must point to an existing, non-deleted note on the same target. `visibility` currently accepts only `internal`.
+
+Returns `201` with `{ "note": ... }`. Creating a note emits `admin-note:changed` to connected admins.
+
+## Edit a note
+
+```http
+PUT /api/admin/notes/<noteId>
+Content-Type: application/json
+
+{ "body": "Corrected: customer confirmed the new address." }
+```
+
+Only the original author may edit. Updatable fields: `body`, `visibility`, `attachments`. If the body actually changes, the first pre-edit body is stored in `originalBody` for superAdmin audit.
+
+## Delete a note
+
+```http
+DELETE /api/admin/notes/<noteId>
+```
+
+Soft delete. Only the author or a `superAdmin` may delete. Returns the updated note; the row remains in the database.
+
+## Audit
+
+| Action | Capability | Audit reason |
+|--------|------------|--------------|
+| `note.create` | `manage_notes` | The note body |
+| `note.update` | `manage_notes` | The new body (or `note updated`) |
+| `note.delete` | `manage_notes` | The existing body (or `note deleted`) |
+
+<Callout type="note">
+Reads are gated by `manage_notes`; the mutating routes rely on the audited action to enforce the same capability inside the transaction.
+</Callout>

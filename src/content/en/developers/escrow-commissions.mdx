@@ -15,10 +15,6 @@ Escrow holds funds until delivery is confirmed.
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | GET | `/escrow/status/:orderId` | JWT | Escrow status for an order |
-| POST | `/escrow/initiate-release` | admin | Release funds to vendor |
-| POST | `/escrow/initiate-refund` | admin | Return funds to buyer |
-| POST | `/escrow/confirm` | admin | Confirm a release/refund |
-| POST | `/escrow/process-expired` | superAdmin | Sweep expired escrows |
 
 ### Escrow lifecycle
 
@@ -39,9 +35,6 @@ The platform charges a commission on orders (tracked on the `Commission` model).
 | `rate` | Commission rate |
 | `status` | Pending / paid |
 
-- Commissions are listed under `GET /admin/commissions` (superAdmin).
-- Mark as paid via `PUT /admin/commissions/:id/pay`.
-
 <Callout type="note">
 Commission tracking can be enabled or disabled via the `commission` feature flag.
 </Callout>
@@ -58,3 +51,7 @@ Buyer pays ──▶ Escrow held ──▶ Delivery confirmed ──▶ Released
 
 - See [Payments overview](/en/developers/payments-overview).
 - See [Feature flags](/en/developers/ecommerce-controls) for commission controls.
+
+<Callout type="note">
+Admin escrow actions and commission payouts are documented in the restricted [Admin API reference](/en/developers/api-admin).
+</Callout>

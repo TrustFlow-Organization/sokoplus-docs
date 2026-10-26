@@ -31,7 +31,6 @@ A subscription stores `tier`, `price`, `startDate`, `endDate`, `isActive`, `isTr
 | POST | `/subscriptions/upgrade` | vendor/service_provider | Move to a higher tier |
 | POST | `/subscriptions/downgrade` | vendor/service_provider | Schedule a downgrade to a lower tier |
 | GET | `/subscriptions/vendor/:vendorId/limits` | JWT | Listing limits for a vendor |
-| GET | `/subscriptions/all` | superAdmin | List all subscriptions |
 
 ## GET /subscriptions/my
 
@@ -122,24 +121,6 @@ Returns the subscription limits for a vendor's business profile (`vendorId` is t
 
 Returns `404` when the vendor is not found.
 
-## GET /subscriptions/all
-
-superAdmin only. Lists every subscription, newest first, with the owning user's `id`, `fullName` and `email`. Filter with query params `type` (`vendor`|`service_provider`), `tier` and `isActive` (`true`|`false`).
-
-<CodeBlock title="Response">
-```json
-{
-  "subscriptions": [
-    {
-      "id": "...",
-      "type": "vendor",
-      "tier": "pro",
-      "price": 25000,
-      "isActive": true,
-      "user": { "id": "...", "fullName": "Jane Doe", "email": "jane@example.com" }
-    }
-  ],
-  "total": 1
-}
-```
-</CodeBlock>
+<Callout type="note">
+The platform-wide subscription list is documented in the restricted [Admin API reference](/en/developers/api-admin).
+</Callout>

@@ -1,0 +1,77 @@
+---
+title: "Majukumu na ruhusa"
+description: "Mfumo wa majukumu, middleware ya authorize, na uepukaji wa msimamizi mkuu."
+group: "authentication"
+order: 2
+visibility: superAdmin
+updated: 2026-10-25
+---
+SokoPlus hutumia mfumo wa **udhibiti wa ufikiaji kulingana na jukumu (RBAC)** juu ya uthibitishaji wa JWT.
+
+## Majukumu
+
+| Jukumu | Maelezo |
+|------|-------------|
+| `client` | Mteja — maagizo, orodha ya matamanio, anwani, maoni |
+| `vendor` | Huuza bidhaa halisi |
+| `service_provider` | Hutoa huduma za kitaalamu |
+| `delivery` | Hufanya usafirishaji |
+| `partnerAdmin` | Shughuli za kila siku za usimamizi |
+| `majorAdmin` | Shughuli pana zaidi: wateja, kamisheni, marejesho, mipangilio, ukaguzi, ugawaji kazi |
+| `superAdmin` | Ufikiaji kamili wa mfumo |
+
+## Jinsi uidhinishaji unavyofanya kazi
+
+Middleware mbili huzuia kila njia iliyolindwa:
+
+1. **`protect`** — huthibitisha JWT na kupakia mtumiaji.
+2. **`authorize(...roles)`** — huangalia `req.user.role` dhidi ya orodha inayoruhusiwa.
+
+```js
+// Mfano: ni wauzaji na wa juu zaidi pekee wanaoweza kuunda bidhaa
+router.post(
+  '/add',
+  protect,
+  authorize('vendor', 'service_provider'),
+  productController.createProduct,
+)
+```
+
+## Uepukaji wa msimamizi mkuu
+
+`superAdmin` ni wa pekee:
+
+- Huepuka **kila** ukaguzi wa majukumu ndani ya `authorize`.
+- Anaweza kurejesha ufikiaji hata hifadhidata ikiwa tupu kupitia usanidi wa mwanzilishi.
+- `partnerAdmin` hawezi kurekebisha au kuona akaunti za `superAdmin`.
+
+## Modeli ya ruhusa
+
+Ruhusa za msimamizi huamuliwa kwa **tabaka tatu**, na deny hushinda kila wakati:
+
+| Tabaka | Huhifadhiwa | Maelezo |
+|-------|-----------|-------|
+| 1. Uepukaji wa superAdmin | — | Ana kila funguo bila safu yoyote |
+| 2. Chaguo-msingi za jukumu | `RolePermission` (`role` + `permissionKey`) | Hurudi kwenye chaguo-msingi za msimbo katika `ROLE_PERMISSIONS` hadi jukumu lipandwe |
+| 3. Mabadiliko ya msimamizi mmoja | `AdminPermission` (`adminId` + `permissionKey`, `effect` = `grant`/`deny`) | `deny` hushinda chaguo-msingi la jukumu; futa safu (`effect: null`) kurithi tena |
+
+Gawa kupitia **matrix ya ugawaji**: `superAdmin` hutoa kitu chochote, wakati `majorAdmin`/`partnerAdmin` wanaweza kutoa kila funguo **isipokuwa** `manage_permissions`, `manage_regions` na `assign_regions`. Wasimamizi wenye mkoa hutenda kwa mkoa wao pekee.
+
+Kila kitendo cha msimamizi kinachobadilisha data hupitia `auditedAction`: hukagua uwezo, huhitaji **sababu** (`superAdmin` anaweza kuiacha, hurekodiwa kama `reasonOverride`), huandika safu ya `AdminAction` katika muamala huo huo, na huongeza kwenye `ActivityLog`.
+
+> **Dokezo:** Endpoints za kusoma/kuandika zimeandikwa kwenye ukurasa wa **Msimamizi** (`/admin/permissions/...` na `/admin/regions/assign`).
+
+## Muhtasari wa ruhusa
+
+| Uwezo | Jukumu la chini zaidi |
+|------------|--------------|
+| Kutazama, gari la ununuzi, orodha ya matamanio, maagizo | `client` |
+| Kuorodhesha bidhaa / huduma | `vendor` / `service_provider` (biashara imeidhinishwa) |
+| Kusimamia watu wa usafirishaji | `vendor` / `service_provider` |
+| Kukamilisha usafirishaji | `delivery` |
+| Kusimamia watumiaji, wauzaji, maagizo | `partnerAdmin` |
+| Uidhinishaji wa wauzaji, ripoti, tiketi za usaidizi | `partnerAdmin` |
+| Kamisheni, marejesho, mipangilio, kumbukumbu za shughuli, ugawaji kazi | `majorAdmin` |
+| Rekodi, afya ya mfumo, shughuli za pekee, udhibiti wa ecommerce | `superAdmin` |
+
+> **Dokezo:** Middleware ya `authorize` inarudisha `403 Forbidden` wakati jukumu la mtumiaji halijaruhusiwa.

@@ -103,26 +103,11 @@ Wakati kipengele cha `payment_service` kikiwa **kimezimwa**, malipo ya mtandaoni
 - Kuthibitisha suborder kunatengeneza `recipientCode` yake (inayotumika kwa uthibitishaji wa usafirishaji wa pande tatu na payload ya QR).
 - Kukabidhi suborder kunarekodi `collectedAmount` (kwa default `negotiatedAmount ?? subtotal`), inatoa sehemu ya escrow ya suborder hiyo na kumkabidhi biashara.
 - Kughairi (mteja au mgeni) kinaruhusiwa tu wakati agizo liko `pending`/`confirmed`; linaweka `cancelReason` kwenye agizo na suborders na kurudisha escrow.
-- `returned` inakubaliwa tu kupitia njia ya admin (`PUT /admin/orders/:orderId/status`).
+- `returned` ni hali inayosimamiwa na admin.
 
 <Callout type="note">
 Maagizo ya wauzaji wengi yanatengeneza **msimbo mmoja wa mpokeaji kwa kila suborder**, unaothibitishwa dhidi ya sehemu ya biashara inayofanana. Safu za `OrderItem` zina nakala za lahaja (`variantId`, `variantName`, `variantType`) pamoja na `selectedSpecs`/`notes`.
 </Callout>
-
-### Usimamizi wa maagizo ya admin
-
-| Method | Path | Auth | Maelezo |
-|--------|------|------|-------------|
-| GET | `/admin/orders` | admin | Orodhesha maagizo yote (yametengwa kwa eneo) |
-| PUT | `/admin/orders/:orderId/status` | admin+ (`manage_orders`) | Sasisha hali |
-| DELETE | `/admin/orders/:orderId` | **superAdmin** | Futa agizo (soft delete) |
-
-**`DELETE /admin/orders/:orderId`** hufanya **soft delete**: agizo hutiwa alama ya `deletedAt`/`deletedBy` na mara moja hutoweka kwenye kila swala la maagizo (orodha ya admin, orodha ya muuzaji, orodha ya mteja, na ufuatiliaji wa umma). **Halifutwi kabisa**:
-
-- Kufuta tena (au kutafuta id iliyofutwa) inarudisha `404`.
-- Maagizo yaliyofutwa yanaonekana kwenye **Rekodi Zilizofutwa** (`GET /admin/records`) na yanaweza kurudishwa kwa `POST /admin/records/Order/:orderId/restore` au kuondolewa kabisa kwa `DELETE /admin/records/Order/:orderId/nuke`.
-- Historia ya escrow, bidhaa, na fedha inahifadhiwa, kwa hivyo kufuta hakuharibu rekodi za ukaguzi au malipo.
-- Jibu la mafanikio ni `200` lenye `{ "message": "Order deleted successfully", "orderId", "orderCode" }`.
 
 ## Kuhifadhi nafasi (`/api/bookings`)
 
@@ -142,8 +127,6 @@ Maagizo ya wauzaji wengi yanatengeneza **msimbo mmoja wa mpokeaji kwa kila subor
 |--------|------|------|-------------|
 | POST | `/delivery/create` | vendor+ | Unda mshirika wa usafirishaji |
 | GET | `/delivery/my-team` | vendor+ | Orodhesha timu |
-| GET | `/delivery/all` | admin | Orodhesha wafanyakazi wote wa usafirishaji |
-| GET | `/delivery/:id` | partnerAdmin/superAdmin | Mfanyakazi mmoja wa usafirishaji |
 | PUT | `/delivery/:id` | vendor+ | Sasisha mfanyakazi wa usafirishaji |
 | DELETE | `/delivery/:id` | vendor+/admin | Ondoa mfanyakazi wa usafirishaji |
 | POST | `/delivery/assign` | vendor+ | Kabidhi suborder (→ shipped) |
@@ -151,10 +134,13 @@ Maagizo ya wauzaji wengi yanatengeneza **msimbo mmoja wa mpokeaji kwa kila subor
 | GET | `/delivery/my-stats` | delivery | Takwimu za usafirishaji |
 | PUT | `/delivery/:id/verify` | delivery | Thibitisha kukabidhiwa (`suborderId` ya hiari) |
 | PUT | `/delivery/:id/verify-person` | vendor+ | Thibitisha utambulisho wa mfanyakazi wa usafirishaji |
-| PUT | `/delivery/:id/status` | admin | Weka mfanyakazi active/offline |
 | PUT | `/delivery/my-status` | delivery | Badilisha hali ya Active/offline |
 | GET | `/delivery/calculate` | Public | Ada ya usafirishaji kwa eneo |
 | GET | `/delivery/zones/public` | Public | Zones za usafirishaji za biashara |
 | GET | `/delivery/zones` | vendor+ | Zones zako za usafirishaji |
 | POST | `/delivery/zones` | vendor+ | Unda/sasisha zone ya usafirishaji |
 | DELETE | `/delivery/zones/:id` | vendor+ | Ondoa zone ya usafirishaji |
+
+<Callout type="note">
+Usimamizi wa maagizo na usafirishaji wa msimamizi umeandikwa katika [Rejea ya API ya msimamizi](/sw/developers/api-admin) iliyozuiwa.
+</Callout>

@@ -34,10 +34,10 @@ Throughout these docs, the base URL is shown as `https://api.sokopluss.co.tz/api
 | **API reference** | Endpoint-by-endpoint documentation grouped by resource |
 | **Payments & webhooks** | ClickPesa, escrow, commissions, webhook signing |
 | **Platform concepts** | Data model, feature flags, notifications, rate limits |
-| **Deployment** | Running the backend & environment variables — **restricted**: only visible to authenticated platform admins |
+| **Deployment** | Running the backend & environment variables — **restricted**: signed-in platform admins only (super-admin for deployment) |
 
 <Callout type="note">
-Four pages in the developer section (`api-admin`, `roles-permissions`, `deployment`, `environment-variables`) are restricted and served from the backend. You need a docs access token or a super-admin session to view them.
+Pages marked **Restricted** in the sidebar contain SokoPlus administration material — admin APIs, internal operations, permissions, feature flags, deployment and environment configuration. They ship with the static docs build but are hidden until you sign in from `/login` with an admin account. `superAdmin` pages require the separate super-admin account. API authorization still applies independently.
 </Callout>
 
 ## A word on stability

@@ -1,0 +1,59 @@
+---
+title: "Usambazaji (deployment)"
+description: "Kufanya backend ya SokoPlus ifanye kazi — Render, Docker, na ukaguzi wa afya ya seva."
+group: "deployment"
+order: 2
+visibility: superAdmin
+updated: 2026-10-25
+---
+Backend ni programu ya kawaida ya Node.js + Express. Inaendesha kwenye **Render kupitia Docker** au mwenyeji yeyote wa Node.js ulio na PostgreSQL.
+
+## Render (`render.yaml`)
+
+```yaml
+services:
+  - type: web
+    name: sokoplus-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+```
+
+Tengeneza instance ya **PostgreSQL** kwenye Render na uweke vigezo vya mazingira muhimu hapo.
+
+## Docker (`Dockerfile`)
+
+| Sifa | Thamani |
+|----------|-------|
+| Picha ya msingi | `node:22-alpine` |
+| Hatua | kusakinisha tegemeo → kunakili prisma → kutengeneza client → kunakili source |
+| Bandari inayofunguliwa | 5001 |
+| Ukaguzi wa afya | `/health`, muda wa sekunde 30, kipindi cha kuanza cha sekunde 40, majaribio 3 |
+| Uzinduzi | `npx prisma migrate deploy && node build/src/app.js` |
+
+## Mkakati wa kuhamisha data (migration)
+
+Uhamishaji wa data hufanyika kiotomatiki wakati wa kuwasha seva:
+
+```bash
+npx prisma migrate deploy && node build/src/app.js
+```
+
+Hu huu hutumika kusukuma uhamishaji unaosubiri (pending) kabla ya seva kupokea trafiki, ndiyo maana ukaguzi wa afya una kipindi kirefu cha kuanza.
+
+## Usanidi wa msimamizi mkuu
+
+1. Weka `SUPERADMIN_EMAIL` kuwa barua pepe ya mwanzilishi.
+2. Tengeneza bcrypt hash kwa neno la siri la mwanzilishi na uliweke kwenye `SUPERADMIN_PASSWORD_HASH`.
+3. Msimamizi mkuu anaweza kutumia mfumo wa kuingia wa bypass na barua pepe hiyo.
+
+## Orodha ya hatua za kuimarisha usalama
+
+- [ ] `NODE_ENV=production`
+- [ ] `JWT_SECRET` refu na la bahati nasibu
+- [ ] Siri kwenye dashibodi ya Render / secret manager, si kwenye repo
+- [ ] `PAYMENT_PROVIDER` na mode ya gateway yake vielekee production baada tu ya majaribio ya sandbox
+- [ ] `CORS_ORIGIN` ikiwekwa kuwa domain halisi za frontend yako
+- [ ] Uwekaji nakala (backup) wa kiotomatiki wa PostgreSQL
+
+> **Onyo:** Endpoint ya usimamizi ya `clear-database` ni halisi na inaharibu data. Inalindwa na neno la siri — linde hash hiyo vizuri na usitumie thamani chaguo-msingi.

@@ -4,6 +4,7 @@ import { ArrowRight, type LucideIcon } from 'lucide-react'
 import { getArticles } from '@/lib/content'
 import { SECTION_GROUPS } from '@/lib/nav'
 import { getSectionIcon } from '@/lib/sectionIcons'
+import { canReadVisibility, useDocsSession } from '@/lib/docsAuth'
 import { usePageMeta } from '@/lib/seo'
 import { isLang, DEFAULT_LANG, type Lang } from '@/i18n'
 import type { Section } from '@/lib/content'
@@ -12,6 +13,7 @@ export function SectionIndex({ section }: { section: Section }) {
   const { lang: langParam } = useParams()
   const lang: Lang = isLang(langParam) ? langParam : DEFAULT_LANG
   const { t } = useTranslation(section === 'help' ? 'help' : 'developers')
+  const session = useDocsSession()
 
   usePageMeta({
     title: `${t('title')} | SokoPlus Docs`,
@@ -28,7 +30,7 @@ export function SectionIndex({ section }: { section: Section }) {
     .map((g) => ({
       key: g.key,
       icon: getSectionIcon(section, g.key),
-      articles: getArticles({ section, lang, group: g.key }),
+      articles: getArticles({ section, lang, group: g.key }).filter((a) => canReadVisibility(a.visibility, session)),
     }))
     .filter((g) => g.articles.length > 0)
 

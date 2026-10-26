@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs'
-import { join, relative, extname } from 'node:path'
+import { join, relative, extname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import matter from 'gray-matter'
 
@@ -30,8 +30,13 @@ function toPlainText(mdx) {
 }
 
 export function docsStaticPlugin() {
+  let outDir = fileURLToPath(new URL('../dist/', import.meta.url))
+
   return {
     name: 'sokoplus-docs-static',
+    configResolved(config) {
+      outDir = resolve(config.root, config.build.outDir)
+    },
     closeBundle() {
       const files = walk(CONTENT_DIR)
       const index = { en: [], sw: [] }
@@ -42,6 +47,7 @@ export function docsStaticPlugin() {
         if (!LANGS.includes(lang)) continue
         const source = readFileSync(file, 'utf8')
         const { data, content } = matter(source)
+        if (data.visibility) continue
         index[lang].push({
           id: `${lang}-${section}-${slug}`,
           lang,
@@ -53,11 +59,6 @@ export function docsStaticPlugin() {
           order: typeof data.order === 'number' ? data.order : 999,
           text: toPlainText(content),
         })
-      }
-
-      mkdirSync(PUBLIC_DIR, { recursive: true })
-      for (const lang of LANGS) {
-        writeFileSync(join(PUBLIC_DIR, `search-index.${lang}.json`), JSON.stringify(index[lang]))
       }
 
       const baseUrl = 'https://docs.sokopluss.co.tz'
@@ -73,7 +74,13 @@ export function docsStaticPlugin() {
             `  <url><loc>${baseUrl}${u}</loc><changefreq>weekly</changefreq><priority>${u === '' || u === '/en' ? '1.0' : '0.7'}</priority></url>`,
         )
         .join('\n')}\n</urlset>\n`
-      writeFileSync(join(PUBLIC_DIR, 'sitemap.xml'), sitemap)
+      for (const dir of [PUBLIC_DIR, outDir]) {
+        mkdirSync(dir, { recursive: true })
+        for (const lang of LANGS) {
+          writeFileSync(join(dir, `search-index.${lang}.json`), JSON.stringify(index[lang]))
+        }
+        writeFileSync(join(dir, 'sitemap.xml'), sitemap)
+      }
     },
   }
 }

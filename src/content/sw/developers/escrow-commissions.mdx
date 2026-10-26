@@ -15,10 +15,6 @@ Escrow hushikilia fedha hadi usafirishaji uthibitishwe.
 | Mbinu | Njia | Uthibitishaji | Maelezo |
 |--------|------|------|-------------|
 | GET | `/escrow/status/:orderId` | JWT | Hali ya escrow ya agizo |
-| POST | `/escrow/initiate-release` | admin | Toa fedha kwa muuzaji |
-| POST | `/escrow/initiate-refund` | admin | Rudisha fedha kwa mteja |
-| POST | `/escrow/confirm` | admin | Thibitisha utoaji/kurudishiwa |
-| POST | `/escrow/process-expired` | superAdmin | Fagia escrow zilizoisha muda |
 
 ### Mzunguko wa maisha wa escrow
 
@@ -39,9 +35,6 @@ Jukwaa litoza komisheni kwenye maagizo (inafuatiliwa kwenye mfano wa `Commission
 | `rate` | Kiwango cha komisheni |
 | `status` | Inasubiri / imelipwa |
 
-- Komisheni huorodheshwa chini ya `GET /admin/commissions` (superAdmin).
-- Tia alama kuwa imelipwa kupitia `PUT /admin/commissions/:id/pay`.
-
 <Callout type="note">
 Ufuatiliaji wa komisheni unaweza kuwashwa au kuzimwa kupitia swichi ya `commission`.
 </Callout>
@@ -58,3 +51,7 @@ Buyer pays ──▶ Escrow held ──▶ Delivery confirmed ──▶ Released
 
 - Angalia [Muhtasari wa malipo](/sw/developers/payments-overview).
 - Angalia [Swichi za vipengele](/sw/developers/ecommerce-controls) kwa udhibiti wa komisheni.
+
+<Callout type="note">
+Hatua za escrow na malipo ya komisheni za msimamizi zimeandikwa katika [Rejea ya API ya msimamizi](/sw/developers/api-admin) iliyozuiwa.
+</Callout>

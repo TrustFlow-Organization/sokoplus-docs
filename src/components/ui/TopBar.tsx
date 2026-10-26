@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { GitBranch, LogOut, Menu, ShieldCheck, X } from 'lucide-react'
+import { GitBranch, LogIn, LogOut, Menu, X } from 'lucide-react'
 import { Logo } from '@/components/ui/Logo'
 import { SearchBox } from '@/components/ui/SearchBox'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { cn } from '@/lib/cn'
 import { useDocsSession, clearSession } from '@/lib/docsAuth'
-import { docsApi } from '@/lib/docsApi'
-import { clearRestrictedCache } from '@/lib/restricted'
 import type { Lang } from '@/i18n'
 
 const GITHUB_URL = 'https://github.com/apox-rider/sokoplus-docs'
@@ -26,14 +24,8 @@ export function TopBar({ lang }: { lang: Lang }) {
     }
   }, [open])
 
-  async function handleLogout() {
-    try {
-      await docsApi.logout()
-    } catch {
-      // best effort — clear locally regardless
-    }
+  function handleLogout() {
     clearSession()
-    clearRestrictedCache()
     navigate(`/${lang}`, { replace: true })
   }
 
@@ -78,27 +70,22 @@ export function TopBar({ lang }: { lang: Lang }) {
             <GitBranch className="h-4 w-4" />
           </a>
           <LanguageSwitcher />
+          {!session && (
+            <Link
+              to={`/login?lang=${lang}`}
+              aria-label={t('signIn')}
+              title={t('signIn')}
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-sm font-semibold text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface"
+            >
+              <LogIn className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('signIn')}</span>
+            </Link>
+          )}
           {session && (
             <>
-              {session.role === 'superAdmin' && (
-                <NavLink
-                  to={`/${lang}/admin/tokens`}
-                  className={({ isActive }) =>
-                    cn(
-                      'inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm font-semibold transition-colors',
-                      isActive
-                        ? 'border-brand text-brand'
-                        : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface',
-                    )
-                  }
-                >
-                  <ShieldCheck className="h-4 w-4" />
-                  {t('adminTokens')}
-                </NavLink>
-              )}
               <button
                 type="button"
-                onClick={() => void handleLogout()}
+                onClick={handleLogout}
                 aria-label={t('signOut')}
                 title={t('signOut')}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-line text-on-surface-variant transition-colors hover:bg-surface-container hover:text-error"
@@ -134,23 +121,23 @@ export function TopBar({ lang }: { lang: Lang }) {
                 {l.label}
               </NavLink>
             ))}
+            {!session && (
+              <Link
+                to={`/login?lang=${lang}`}
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold text-on-surface-variant hover:bg-surface-container"
+              >
+                <LogIn className="h-4 w-4" />
+                {t('signIn')}
+              </Link>
+            )}
             {session && (
               <>
-                {session.role === 'superAdmin' && (
-                  <NavLink
-                    to={`/${lang}/admin/tokens`}
-                    onClick={() => setOpen(false)}
-                    className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold text-on-surface-variant hover:bg-surface-container"
-                  >
-                    <ShieldCheck className="h-4 w-4" />
-                    {t('adminTokens')}
-                  </NavLink>
-                )}
                 <button
                   type="button"
                   onClick={() => {
                     setOpen(false)
-                    void handleLogout()
+                    handleLogout()
                   }}
                   className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold text-on-surface-variant hover:bg-surface-container"
                 >

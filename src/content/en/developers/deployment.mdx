@@ -1,0 +1,60 @@
+---
+title: "Deployment"
+description: "Shipping the SokoPlus backend — Render, Docker, and health checks."
+group: "deployment"
+order: 2
+visibility: superAdmin
+updated: 2026-10-25
+---
+
+The backend is a standard Node.js + Express app. It runs on **Render via Docker** or any Node.js host with PostgreSQL.
+
+## Render (`render.yaml`)
+
+```yaml
+services:
+  - type: web
+    name: sokoplus-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+```
+
+Create a Render **PostgreSQL** instance and set the required environment variables there.
+
+## Docker (`Dockerfile`)
+
+| Property | Value |
+|----------|-------|
+| Base image | `node:22-alpine` |
+| Steps | install deps → copy prisma → generate client → copy source |
+| Exposed port | 5001 |
+| Health check | `/health`, 30s interval, 40s start period, 3 retries |
+| Startup | `npx prisma migrate deploy && node build/src/app.js` |
+
+## Migration strategy
+
+Migrations run automatically at container startup:
+
+```bash
+npx prisma migrate deploy && node build/src/app.js
+```
+
+This applies pending migrations before the server accepts traffic, which is why the health check has a generous start period.
+
+## Super admin setup
+
+1. Set `SUPERADMIN_EMAIL` to the founder email.
+2. Generate a bcrypt hash for the founder password and store it in `SUPERADMIN_PASSWORD_HASH`.
+3. The super admin can then use the bypass login flow with that email.
+
+## Hardening checklist
+
+- [ ] `NODE_ENV=production`
+- [ ] Long, random `JWT_SECRET`
+- [ ] Secrets in Render's dashboard / secret manager, not the repo
+- [ ] `PAYMENT_PROVIDER` and its gateway mode point at production only after sandbox testing
+- [ ] `CORS_ORIGIN` set to your real frontend domains
+- [ ] Backup automation for PostgreSQL
+
+> **Warning:** The `clear-database` admin endpoint is real and destructive. It is password-gated — keep that hash safe and never ship a default.

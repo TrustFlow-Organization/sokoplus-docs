@@ -1,0 +1,98 @@
+---
+title: "Msimamizi"
+description: "Rejea ya /api/admin — takwimu, watumiaji, wauzaji, maagizo, ruhusa, maudhui, madokezo, bendera, kazi na ukaguzi."
+group: "api"
+order: 18
+visibility: admin
+updated: 2026-10-25
+---
+Endpoints za msimamizi zinasimamia shughuli za jukwaa. Endpoints za mfumo, fedha na rekodi za msimamizi mkuu pekee ziko kwenye ukurasa wa **API ya msimamizi mkuu**.
+
+## Takwimu za jukwaa
+
+| Method | Path | Auth | Maelezo |
+|--------|------|------|-------------|
+| GET | `/admin/stats` | partnerAdmin+ | Idadi za watumiaji/biashara/maagizo/mapato |
+| GET | `/admin/chart-data` | partnerAdmin+ | Data ya chati ya mwezi |
+
+## Watumiaji na wauzaji
+
+| Method | Path | Auth | Maelezo |
+|--------|------|------|-------------|
+| GET | `/admin/users` | partnerAdmin+ | Watumiaji wote |
+| PUT | `/admin/users/:id/role` | partnerAdmin+ | Badilisha jukumu |
+| PUT | `/admin/users/:id/status` | partnerAdmin+ | Badilisha hali |
+| POST | `/admin/users/create` | partnerAdmin+ | Unda mtumiaji + biashara |
+| GET | `/admin/vendors` | partnerAdmin+ | Biashara zote |
+| GET | `/admin/vendors/pending` | partnerAdmin+ | Maombi yanayosubiri |
+| PUT | `/admin/vendors/:id/verify` | partnerAdmin+ | Idhinisha muuzaji |
+| PUT | `/admin/vendors/:id/reject` | partnerAdmin+ | Kataa muuzaji |
+| PUT | `/admin/vendors/:id/suspend` | partnerAdmin+ | Simamisha muuzaji |
+
+## Maagizo na bidhaa
+
+| Method | Path | Auth | Maelezo |
+|--------|------|------|-------------|
+| GET | `/admin/orders` | partnerAdmin+ | Maagizo yote (yanayochujika) |
+| PUT | `/admin/orders/:orderId/status` | partnerAdmin+ | Sasisha hali ya agizo |
+| GET | `/admin/products/all` | partnerAdmin+ | Bidhaa zote pamoja na data ya ziada |
+
+## Ruhusa na mikoa
+
+| Method | Path | Auth | Maelezo |
+|--------|------|------|-------------|
+| GET | `/admin/permissions/grant-matrix` | partnerAdmin+ | Funguo ambazo mtendaji huyu anaweza kutoa; `superAdmin` hupata pia matrix kamili ya jukumu × funguo |
+| GET | `/admin/permissions/role/:role` | partnerAdmin+ | Chaguo-msingi za jukumu (`partnerAdmin` au `majorAdmin`) |
+| PUT | `/admin/permissions/role/:role` | partnerAdmin+ | Badilisha chaguo-msingi za jukumu |
+| GET | `/admin/permissions/:adminId` | partnerAdmin+ | Seti yenye nguvu ya msimamizi mmoja: `enabled`, `effect` (`grant`/`deny`/null) na `grantable` kwa kila funguo |
+| PUT | `/admin/permissions/:adminId` | partnerAdmin+ | Andika mabadiliko ya msimamizi mmoja. `effect: 'grant'`/`'deny'` huandika safu; `effect: null` huifuta (hurithi chaguo-msingi la jukumu) |
+| POST | `/admin/regions/assign` | majorAdmin+ | Hamisha mtumiaji au majorAdmin kwenda mkoa. Inadhibitiwa na `assign_regions`, **sababu inahitajika** |
+
+> **Dokezo:** Ugawaji una mipaka: `majorAdmin`/`partnerAdmin` hawawezi kutoa au kuondoa `manage_permissions`, `manage_regions` au `assign_regions`; funguo hizo huachwa kwenye ombi na hurudishwa kwenye safu ya `rejected`. Kuweka mkoa kunahitaji `regionId` na (kwa wasio superAdmin) lazima kubaki ndani ya mkoa wa mtendaji mwenyewe.
+
+## Escrow na usafirishaji
+
+| Method | Path | Auth | Maelezo |
+|--------|------|------|---------|
+| POST | `/escrow/initiate-release` | msimamizi | Toa fedha kwa muuzaji |
+| POST | `/escrow/initiate-refund` | msimamizi | Rudisha fedha kwa mnunuzi |
+| POST | `/escrow/confirm` | msimamizi | Thibitisha utoaji au urejeshaji |
+| GET | `/delivery/all` | msimamizi | Wafanyakazi wote wa usafirishaji |
+| GET | `/delivery/:id` | partnerAdmin/superAdmin | Mfanyakazi mmoja wa usafirishaji |
+| PUT | `/delivery/:id/status` | msimamizi | Weka mfanyakazi active/offline |
+
+<Callout type="note">
+Endpoints za msimamizi mkuu pekee zimeandikwa kando katika [API ya msimamizi mkuu](/sw/developers/api-superadmin) iliyozuiwa.
+</Callout>
+
+## Maudhui na ripoti
+
+| Method | Path | Auth | Maelezo |
+|--------|------|------|-------------|
+| GET/PUT | `/admin/settings` | partnerAdmin+ | Mipangilio ya jukwaa |
+| GET | `/admin/settings/public` | Public | Jina, barua pepe, simu, sarafu |
+| GET | `/admin/reports/:type` | partnerAdmin+ | Usafirishaji wa CSV/JSON |
+| PUT | `/admin/feedback/:id/approve` | partnerAdmin+ | Idhinisha maoni |
+| PUT | `/admin/reports/:id/status` | partnerAdmin+ | Sasisha hali ya ripoti |
+
+## Msingi wa usimamizi
+
+| Method | Path | Auth | Maelezo |
+|--------|------|------|---------|
+| GET | `/admin/notes` | `manage_notes` | Madokezo ya `targetType` + `targetId` moja |
+| POST | `/admin/notes` | msimamizi | Unda dokezo au jibu (maudhui ni sababu ya ukaguzi) |
+| PUT | `/admin/notes/:id` | msimamizi | Hariri dokezo lako mwenyewe |
+| DELETE | `/admin/notes/:id` | msimamizi | Futa dokezo lako kwa upole; `superAdmin` anaweza kufuta lolote |
+| GET | `/admin/flags` | `manage_flags` | Orodhesha bendera (lengo, hali, ukali, ukurasa, kikomo) |
+| POST | `/admin/flags` | msimamizi | Ibua bendera — sababu inahitajika, ukali `low`/`medium`/`high`/`critical` |
+| PUT | `/admin/flags/:id/status` | msimamizi | Hali yoyote isiyo ya mwisho inaweza kuhamia hali yoyote; `resolved`/`dismissed` ni za mwisho |
+| GET | `/admin/tasks/mine` | `manage_tasks` | Kazi zilizokabidhiwa kwako |
+| GET | `/admin/tasks` | `manage_tasks` | Kazi zote, zinazochujika |
+| POST | `/admin/tasks` | `assign_tasks` | Unda na ukabidhi kazi kwa msimamizi |
+| GET | `/admin/tasks/:id` | `manage_tasks` | Kazi pamoja na madokezo yake ya ndani |
+| POST | `/admin/tasks/:id/transition` | `manage_tasks` | Sogeza kazi; dokezo linahitajika |
+| GET | `/admin/audit` | `manage_activity_log` | Ufuatiliaji wa ukaguzi wa kipengele |
+
+Hali za kazi: `OPEN` → `IN_PROGRESS` → `REVIEW` → `DONE` → `CONFIRMED`, na `CANCELLED` kutoka hali yoyote isiyo ya mwisho. Mpokeaji husogeza hatua mbili za kwanza; mkabidhi huweka done, huthibitisha au hughairi. `superAdmin` anaweza kufanya mabadiliko yoyote halali.
+
+> **Dokezo:** Madokezo yanakubali `visibility: "internal"` pekee. Bendera na kazi zote zinaunga mkono viungo vya kipengele; kuunda kazi na `flagId` huunganisha bendera na kazi pande zote. Kila mabadiliko hukaguliwa kwa uwezo na sababu.

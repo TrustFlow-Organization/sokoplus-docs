@@ -1,0 +1,84 @@
+---
+title: "Admin"
+description: "Reference for /api/admin — stats, users, vendors, orders, permissions, content, notes, flags, tasks and audit."
+group: "api"
+order: 18
+visibility: admin
+updated: 2026-10-25
+---
+
+Admin endpoints manage platform operations. Super-admin-only system, finance and record endpoints are on the **Super admin API** page.
+
+## Platform stats
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/admin/stats` | partnerAdmin+ | User/business/order/revenue counts |
+| GET | `/admin/chart-data` | partnerAdmin+ | Monthly chart data |
+
+## Users & vendors
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/admin/users` | partnerAdmin+ | All users |
+| PUT | `/admin/users/:id/role` | partnerAdmin+ | Change role |
+| PUT | `/admin/users/:id/status` | partnerAdmin+ | Change status |
+| POST | `/admin/users/create` | partnerAdmin+ | Create user + business |
+| GET | `/admin/vendors` | partnerAdmin+ | All businesses |
+| GET | `/admin/vendors/pending` | partnerAdmin+ | Pending applications |
+| PUT | `/admin/vendors/:id/verify` | partnerAdmin+ | Approve vendor |
+| PUT | `/admin/vendors/:id/reject` | partnerAdmin+ | Reject vendor |
+| PUT | `/admin/vendors/:id/suspend` | partnerAdmin+ | Suspend vendor |
+
+## Orders & products
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/admin/orders` | partnerAdmin+ | All orders (filterable) |
+| PUT | `/admin/orders/:orderId/status` | partnerAdmin+ | Update order status |
+| GET | `/admin/products/all` | partnerAdmin+ | All products with enrichment |
+
+## Permissions & regions
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/admin/permissions/grant-matrix` | partnerAdmin+ | Keys this actor may grant; a `superAdmin` also gets the full role × key matrix |
+| GET | `/admin/permissions/role/:role` | partnerAdmin+ | Role default grants (`partnerAdmin` or `majorAdmin`) |
+| PUT | `/admin/permissions/role/:role` | partnerAdmin+ | Replace a role's default grants |
+| GET | `/admin/permissions/:adminId` | partnerAdmin+ | One admin's effective set: `enabled`, `effect` (`grant`/`deny`/null) and `grantable` per key |
+| PUT | `/admin/permissions/:adminId` | partnerAdmin+ | Write per-admin overrides. `effect: 'grant'`/`'deny'` writes a row; `effect: null` deletes it (inherits the role default) |
+| POST | `/admin/regions/assign` | majorAdmin+ | Move a user or majorAdmin to a region. `assign_regions` gated, **reason required** |
+
+> **Note:** Delegation is bounded: a `majorAdmin`/`partnerAdmin` cannot grant or revoke `manage_permissions`, `manage_regions` or `assign_regions`; those keys are dropped from the request and echoed in the response's `rejected` array. Setting a region requires a `regionId` and (for non-superAdmins) must stay within the actor's own region.
+
+## Content & reports
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET/PUT | `/admin/settings` | partnerAdmin+ | Platform settings |
+| GET | `/admin/settings/public` | Public | Name, email, phone, currency |
+| GET | `/admin/reports/:type` | partnerAdmin+ | CSV/JSON export |
+| PUT | `/admin/feedback/:id/approve` | partnerAdmin+ | Approve feedback |
+| PUT | `/admin/reports/:id/status` | partnerAdmin+ | Update report status |
+
+## Management primitives
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/admin/notes` | `manage_notes` | Notes for one `targetType` + `targetId` |
+| POST | `/admin/notes` | admin | Create a note or reply (body is the audit reason) |
+| PUT | `/admin/notes/:id` | admin | Edit your own note |
+| DELETE | `/admin/notes/:id` | admin | Soft-delete your own note; `superAdmin` may delete any |
+| GET | `/admin/flags` | `manage_flags` | List flags (target, status, severity, page, limit) |
+| POST | `/admin/flags` | admin | Raise a flag — reason required, severity `low`/`medium`/`high`/`critical` |
+| PUT | `/admin/flags/:id/status` | admin | Any non-terminal status can move to any listed status; `resolved`/`dismissed` are terminal |
+| GET | `/admin/tasks/mine` | `manage_tasks` | Tasks assigned to you |
+| GET | `/admin/tasks` | `manage_tasks` | All tasks, filterable |
+| POST | `/admin/tasks` | `assign_tasks` | Create and assign a task to an admin |
+| GET | `/admin/tasks/:id` | `manage_tasks` | Task plus its internal notes |
+| POST | `/admin/tasks/:id/transition` | `manage_tasks` | Advance the task; a note is required |
+| GET | `/admin/audit` | `manage_activity_log` | Entity audit trail |
+
+Task statuses: `OPEN` → `IN_PROGRESS` → `REVIEW` → `DONE` → `CONFIRMED`, with `CANCELLED` from any non-terminal state. The assignee drives the first two moves; the assigner marks done, confirms or cancels. A `superAdmin` may perform any valid transition.
+
+> **Note:** Notes accept only `visibility: "internal"`. Flags and tasks both support entity links; creating a task with `flagId` links the flag and task in both directions. Every mutation is audited with capability and reason.

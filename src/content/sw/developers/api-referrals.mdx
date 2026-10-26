@@ -18,7 +18,7 @@ Mpango wa rufaa na mfumo wa mikopo ni kipengele kimoja, kinachodhibitiwa na bend
 ```
 </CodeBlock>
 
-Endpoints zote zinahitaji JWT. Endpoints za msimamizi zinahitaji pia jukumu la `superAdmin`.
+Endpoints zote zinahitaji JWT.
 
 ## Zawadi za rufaa
 
@@ -39,7 +39,6 @@ Rufaa iliyokamilika hurekodi `rewardAmount: 7000` (5,000 + 2,000). Mikopo iliyop
 | GET | `/referrals/stats` | JWT | Takwimu za rufaa |
 | GET | `/referrals/code` | JWT | Msimbo wako wa rufaa (hutengeneza na kuhifadhi mmoja usipokuwepo) |
 | POST | `/referrals/apply` | JWT | Omba msimbo wa rufaa wa mtu mwingine |
-| GET | `/referrals/admin/all` | superAdmin | Rufaa zote (kwa kurasa) |
 
 ### GET /referrals/my
 
@@ -101,19 +100,6 @@ Inarudisha msimbo wa rufaa wa mtumiaji wa sasa, na hutengeneza na kuhifadhi mmoj
 
 Msimbo wa rufaa unaweza kutumika mara moja tu, na kamwe usitumie msimbo wako mwenyewe. Rekodi ya rufaa huanza ikiwa `pending`.
 
-### GET /referrals/admin/all
-
-Vigezo vya hoja (query): `page`, `limit` (msingi `1`, `20`) na kichujio cha hiari `status`.
-
-<CodeBlock title="Jibu (Response)">
-```json
-{
-  "referrals": [ ... ],
-  "pagination": { "page": 1, "limit": 20, "total": 42, "pages": 3 }
-}
-```
-</CodeBlock>
-
 ## Mikopo (`/api/credits`)
 
 | Method | Path | Auth | Maelezo |
@@ -121,8 +107,6 @@ Vigezo vya hoja (query): `page`, `limit` (msingi `1`, `20`) na kichujio cha hiar
 | GET | `/credits/my` | JWT | Salio la sasa la mikopo |
 | GET | `/credits/history` | JWT | Historia ya miamala ya mikopo |
 | POST | `/credits/redeem` | JWT | Tumia mikopo kwa kipengele cha mfumo |
-| GET | `/credits/admin/user/:userId` | superAdmin | Mikopo na miamala ya mtumiaji |
-| POST | `/credits/admin/adjust` | superAdmin | Rekebisha mikopo ya mtumiaji kwa mikono |
 
 ### GET /credits/my
 
@@ -198,34 +182,6 @@ Kipengele kisichotambulika kinarudisha `400` pamoja na orodha ya `validFeatures`
 Mikopo hutumika kwa kuilipia kipengele cha mfumo kupitia `POST /credits/redeem` — haitolewi kiotomatiki kwenye malipo ya agizo (checkout).
 </Callout>
 
-### GET /credits/admin/user/:userId
-
-<CodeBlock title="Jibu (Response)">
-```json
-{
-  "user": { "id": "...", "fullName": "Jane Doe", "email": "jane@example.com" },
-  "credits": { "id": "...", "userId": "...", "balance": 5000, "totalEarned": 5000, "totalRedeemed": 0, "totalExpired": 0 },
-  "transactions": [ ... ]
-}
-```
-</CodeBlock>
-
-### POST /credits/admin/adjust
-
-<CodeBlock title="Ombi (Request)">
-```json
-{
-  "userId": "...",
-  "amount": 1000,
-  "description": "Promotional bonus"
-}
-```
-</CodeBlock>
-
-`amount` lazima iwe nambari isiyo sifuri. Thamani chanya huongeza `totalEarned`; thamani hasi huongeza `totalRedeemed` na hukataliwa kwa `400` zikizidi salio la sasa.
-
-<CodeBlock title="Jibu (Response)">
-```json
-{ "message": "Credits adjusted successfully", "credit": { ... } }
-```
-</CodeBlock>
+<Callout type="note">
+Shughuli za rufaa na mikopo za msimamizi zimeandikwa katika [Rejea ya API ya msimamizi](/sw/developers/api-admin) iliyozuiwa.
+</Callout>

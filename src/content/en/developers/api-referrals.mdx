@@ -18,7 +18,7 @@ The referral program and the credits system are one feature, controlled by a sin
 ```
 </CodeBlock>
 
-All endpoints require a JWT. Admin endpoints additionally require the `superAdmin` role.
+All endpoints require a JWT.
 
 ## Referral rewards
 
@@ -39,7 +39,6 @@ A completed referral records `rewardAmount: 7000` (5,000 + 2,000). Earned credit
 | GET | `/referrals/stats` | JWT | Referral statistics |
 | GET | `/referrals/code` | JWT | Your referral code (generates and persists one if missing) |
 | POST | `/referrals/apply` | JWT | Apply someone's referral code |
-| GET | `/referrals/admin/all` | superAdmin | All referrals (paginated) |
 
 ### GET /referrals/my
 
@@ -101,19 +100,6 @@ Returns the current user's referral code, generating and persisting one when it 
 
 A referral code can only be applied once, and never to your own code. The referral record starts as `pending`.
 
-### GET /referrals/admin/all
-
-Query params `page`, `limit` (default `1`, `20`) and an optional `status` filter.
-
-<CodeBlock title="Response">
-```json
-{
-  "referrals": [ ... ],
-  "pagination": { "page": 1, "limit": 20, "total": 42, "pages": 3 }
-}
-```
-</CodeBlock>
-
 ## Credits (`/api/credits`)
 
 | Method | Path | Auth | Description |
@@ -121,8 +107,6 @@ Query params `page`, `limit` (default `1`, `20`) and an optional `status` filter
 | GET | `/credits/my` | JWT | Current credit balance |
 | GET | `/credits/history` | JWT | Credit transaction history |
 | POST | `/credits/redeem` | JWT | Redeem credits for a feature |
-| GET | `/credits/admin/user/:userId` | superAdmin | A user's credits + transactions |
-| POST | `/credits/admin/adjust` | superAdmin | Manually adjust a user's credits |
 
 ### GET /credits/my
 
@@ -198,34 +182,6 @@ An invalid feature returns `400` with a `validFeatures` list; an insufficient ba
 Credits are spent by redeeming them for a platform feature via `POST /credits/redeem` — they are not deducted automatically at order checkout.
 </Callout>
 
-### GET /credits/admin/user/:userId
-
-<CodeBlock title="Response">
-```json
-{
-  "user": { "id": "...", "fullName": "Jane Doe", "email": "jane@example.com" },
-  "credits": { "id": "...", "userId": "...", "balance": 5000, "totalEarned": 5000, "totalRedeemed": 0, "totalExpired": 0 },
-  "transactions": [ ... ]
-}
-```
-</CodeBlock>
-
-### POST /credits/admin/adjust
-
-<CodeBlock title="Request">
-```json
-{
-  "userId": "...",
-  "amount": 1000,
-  "description": "Promotional bonus"
-}
-```
-</CodeBlock>
-
-`amount` must be a non-zero number. Positive values increment `totalEarned`; negative values increment `totalRedeemed` and are rejected with `400` when they exceed the current balance.
-
-<CodeBlock title="Response">
-```json
-{ "message": "Credits adjusted successfully", "credit": { ... } }
-```
-</CodeBlock>
+<Callout type="note">
+Admin referral and credit operations are documented in the restricted [Admin API reference](/en/developers/api-admin).
+</Callout>

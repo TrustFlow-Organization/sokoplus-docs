@@ -1,25 +1,28 @@
-import { setSession } from '@/lib/docsAuth'
-import type { DocsSession } from '@/lib/docsApi'
+import { setSession, type DocsSession } from '@/lib/docsAuth'
+import { LOCAL_ACCOUNTS, findLocalAccountByToken } from '@/lib/docsAccounts'
 
-export const DEVELOPER_EMAIL = 'developer@sokopluss.co.tz'
-export const DEVELOPER_SESSION_TOKEN = 'local-developer-session'
-
-const DEVELOPER_PASSWORD = 'Dev@sokoplus'
+export { ADMIN_EMAIL, SUPERADMIN_EMAIL } from '@/lib/docsAccounts'
 
 export function signInDeveloper(email: string, password: string): boolean {
-  if (email.trim().toLowerCase() !== DEVELOPER_EMAIL) return false
-  if (password !== DEVELOPER_PASSWORD) return false
+  const normalized = email.trim().toLowerCase()
+  const account = LOCAL_ACCOUNTS.find(
+    (candidate) => candidate.email === normalized && candidate.password === password,
+  )
+  if (!account) return false
 
   setSession({
-    token: DEVELOPER_SESSION_TOKEN,
-    role: 'superAdmin',
-    name: 'Developer',
-    email: DEVELOPER_EMAIL,
+    token: account.token,
+    role: account.role,
+    name: account.name,
+    email: account.email,
     local: true,
   })
   return true
 }
 
 export function isLocalSession(session: DocsSession | null): boolean {
-  return session?.local === true || session?.token === DEVELOPER_SESSION_TOKEN
+  return (
+    session?.local === true ||
+    findLocalAccountByToken(session?.token) !== undefined
+  )
 }

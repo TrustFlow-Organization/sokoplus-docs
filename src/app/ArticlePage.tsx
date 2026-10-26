@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { MDXProvider } from '@mdx-js/react'
-import { ArrowLeft, ArrowRight, Calendar, ChevronRight, Home } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Calendar, ChevronRight, Home, Lock } from 'lucide-react'
 import { getArticle, getPrevNext } from '@/lib/content'
+import { canReadVisibility, useDocsSession } from '@/lib/docsAuth'
 import { mdxComponents } from '@/components/mdx'
 import { usePageMeta } from '@/lib/seo'
 import { cn } from '@/lib/cn'
@@ -76,10 +77,11 @@ function useOnThisPage(section: Section) {
 export function ArticlePage({ section }: { section: Section }) {
   const { lang: langParam, slug } = useParams<{ lang?: string; slug: string }>()
   const lang: Lang = isLang(langParam) ? langParam : DEFAULT_LANG
-  const { t } = useTranslation(['common', section === 'help' ? 'help' : 'developers'])
+  const { t } = useTranslation(['common', section === 'help' ? 'help' : 'developers', 'auth'])
+  const session = useDocsSession()
 
   const article = getArticle(section, lang, slug ?? '')
-  const { prev, next } = getPrevNext(section, lang, slug ?? '')
+  const { prev, next } = getPrevNext(section, lang, slug ?? '', (item) => canReadVisibility(item.visibility, session))
   const toc = useOnThisPage(section)
 
   usePageMeta({
@@ -126,11 +128,23 @@ export function ArticlePage({ section }: { section: Section }) {
               {article.description}
             </p>
           )}
-          {article.updated && (
-            <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-surface-container px-3 py-1 text-sm text-on-surface-variant">
-              <Calendar className="h-4 w-4 text-brand" />
-              {t('common:updatedOn')} {article.updated}
-            </p>
+          {(article.visibility || article.updated) && (
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              {article.visibility && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-warning/15 px-3 py-1 text-sm font-semibold text-warning">
+                  <Lock className="h-4 w-4" />
+                  {article.visibility === 'superAdmin'
+                    ? t('auth:restrictedSuperadmin')
+                    : t('auth:restrictedAdmin')}
+                </span>
+              )}
+              {article.updated && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-container px-3 py-1 text-sm text-on-surface-variant">
+                  <Calendar className="h-4 w-4 text-brand" />
+                  {t('common:updatedOn')} {article.updated}
+                </span>
+              )}
+            </div>
           )}
         </header>
 

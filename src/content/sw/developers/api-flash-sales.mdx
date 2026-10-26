@@ -36,12 +36,6 @@ Kila ushiriki una `status`:
 |--------|------|------|-------------|
 | GET | `/flash-sales/active` | Hadharani | Mauzo ya flash yanayoendelea |
 | POST | `/flash-sales/join/:flashSaleId` | vendor | Wasilisha bidhaa kwa flash sale |
-| GET | `/flash-sales/admin/list` | superAdmin | Orodhesha mauzo ya flash |
-| POST | `/flash-sales/admin/create` | superAdmin | Unda flash sale |
-| PATCH | `/flash-sales/admin/:id` | superAdmin | Sasisha flash sale |
-| DELETE | `/flash-sales/admin/:id` | superAdmin | Futa flash sale kwa upole |
-| PATCH | `/flash-sales/admin/participant/:id/approve` | superAdmin | Idhinisha mshiriki |
-| PATCH | `/flash-sales/admin/participant/:id/reject` | superAdmin | Kataa mshiriki |
 
 ## GET /flash-sales/active
 
@@ -95,57 +89,6 @@ Ushiriki una kikomo kwa kiwango cha usajili wa muuzaji, ukihesabu washiriki weny
 Kujiunga na flash sale kunaunda tu ushiriki wa `pending` — **superAdmin lazima auidhinishe** kabla bidhaa haijajumuishwa kwenye mauzo.
 </Callout>
 
-## Endpoints za usimamizi
-
-### POST /flash-sales/admin/create
-
-Body:
-
-```json
-{
-  "name": "Back to School",
-  "description": "School supplies at a discount",
-  "discountPercent": 25,
-  "startsAt": "2026-08-07T00:00:00.000Z",
-  "expiresAt": "2026-08-09T23:59:59.000Z"
-}
-```
-
-`name`, `discountPercent`, `startsAt` na `expiresAt` zinahitajika. `discountPercent` lazima iwe kati ya `1` na `90` na `expiresAt` lazima iwe baada ya `startsAt`. Inarudisha `201` pamoja na mauzo yaliyoundwa.
-
-### GET /flash-sales/admin/list
-
-Orodhesha mauzo kwa pagination ya `page`/`limit`. Chuja kwa `status`:
-
-| `status` | Inarudisha |
-|----------|---------|
-| `active` | Mauzo yanayoendelea sasa |
-| `upcoming` | Mauzo ambayo hayajaanza |
-| `expired` | Mauzo yaliyopita `expiresAt` |
-| `inactive` | Mauzo yenye `isActive: false` |
-| *(imeachwa)* | Mauzo yote yasiyofutwa |
-
-<CodeBlock title="Jibu">
-```json
-{
-  "flashSales": [ { "id": "...", "name": "Back to School", "_count": { "participants": 4 } } ],
-  "pagination": { "page": 1, "limit": 20, "total": 1, "totalPages": 1 }
-}
-```
-</CodeBlock>
-
-### PATCH /flash-sales/admin/:id
-
-Inasasisha mauzo kwa sehemu. Yoyote kati ya `name`, `description`, `discountPercent`, `startsAt`, `expiresAt`, `isActive` (inakubali boolean au mfuatano wa `"true"`/`"false"`). Inarudisha `404` ikiwa mauzo hayapo au yamefutwa.
-
-### DELETE /flash-sales/admin/:id
-
-Inafuta mauzo kwa upole (inaweka `deletedAt`/`deletedBy`; data inahifadhiwa). Inarudisha `404` ikiwa hayajapatikana au tayari yamefutwa.
-
-### PATCH /flash-sales/admin/participant/:id/approve
-
-Inaidhinisha mshiriki mwenye `pending`. Inarudisha `400` ikiwa mshiriki si wa `pending`, `404` ikiwa hapatikani.
-
-### PATCH /flash-sales/admin/participant/:id/reject
-
-Inamkataa mshiriki mwenye `pending`. Tabia ya makosa ni sawa na approve.
+<Callout type="note">
+Usimamizi wa flash sale wa msimamizi umeandikwa katika [Rejea ya API ya msimamizi](/sw/developers/api-admin) iliyozuiwa.
+</Callout>

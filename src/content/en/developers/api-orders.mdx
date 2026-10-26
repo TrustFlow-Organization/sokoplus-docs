@@ -103,26 +103,11 @@ When the `payment_service` feature is **off**, online payments are disabled but 
 - Confirming a suborder generates its `recipientCode` (used for the 3-way delivery verification and the QR payload).
 - Delivering a suborder records `collectedAmount` (defaults to `negotiatedAmount ?? subtotal`), releases that suborder's escrow share and credits the business.
 - Cancelling (customer or guest) is only allowed while `pending`/`confirmed`; it sets `cancelReason` on the order and suborders and refunds escrow.
-- `returned` is accepted only via the admin route (`PUT /admin/orders/:orderId/status`).
+- `returned` is an admin-managed status.
 
 <Callout type="note">
 Multi-vendor orders generate one **recipient code per suborder**, verified against the matching business's share. `OrderItem` rows carry variant snapshots (`variantId`, `variantName`, `variantType`) plus `selectedSpecs`/`notes`.
 </Callout>
-
-### Admin order management
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/admin/orders` | admin | List all orders (region-scoped) |
-| PUT | `/admin/orders/:orderId/status` | admin+ (`manage_orders`) | Update status |
-| DELETE | `/admin/orders/:orderId` | **superAdmin** | Soft-delete an order |
-
-**`DELETE /admin/orders/:orderId`** performs a **soft delete**: the order is stamped with `deletedAt`/`deletedBy` and immediately disappears from every order query (admin list, vendor list, customer list, and public tracking). It is **not** permanently erased:
-
-- Deleting again (or any lookup of a soft-deleted id) returns `404`.
-- Soft-deleted orders appear under **Deleted Records** (`GET /admin/records`) and can be restored with `POST /admin/records/Order/:orderId/restore` or permanently removed with `DELETE /admin/records/Order/:orderId/nuke`.
-- Escrow, item, and financial history is preserved, so deletion does not corrupt audit or payout records.
-- A successful response is `200` with `{ "message": "Order deleted successfully", "orderId", "orderCode" }`.
 
 ## Bookings (`/api/bookings`)
 
@@ -142,8 +127,6 @@ Multi-vendor orders generate one **recipient code per suborder**, verified again
 |--------|------|------|-------------|
 | POST | `/delivery/create` | vendor+ | Create delivery person |
 | GET | `/delivery/my-team` | vendor+ | List team |
-| GET | `/delivery/all` | admin | List all delivery people |
-| GET | `/delivery/:id` | partnerAdmin/superAdmin | One delivery person |
 | PUT | `/delivery/:id` | vendor+ | Update delivery person |
 | DELETE | `/delivery/:id` | vendor+/admin | Remove delivery person |
 | POST | `/delivery/assign` | vendor+ | Assign a suborder (→ shipped) |
@@ -151,10 +134,13 @@ Multi-vendor orders generate one **recipient code per suborder**, verified again
 | GET | `/delivery/my-stats` | delivery | Delivery stats |
 | PUT | `/delivery/:id/verify` | delivery | Verify handover (optional `suborderId`) |
 | PUT | `/delivery/:id/verify-person` | vendor+ | Verify a delivery person's identity |
-| PUT | `/delivery/:id/status` | admin | Set delivery person active/offline |
 | PUT | `/delivery/my-status` | delivery | Active/offline toggle |
 | GET | `/delivery/calculate` | Public | Delivery fee for location |
 | GET | `/delivery/zones/public` | Public | Business delivery zones |
 | GET | `/delivery/zones` | vendor+ | Your delivery zones |
 | POST | `/delivery/zones` | vendor+ | Create/update a delivery zone |
 | DELETE | `/delivery/zones/:id` | vendor+ | Delete a delivery zone |
+
+<Callout type="note">
+Admin order and delivery management are documented in the restricted [Admin API reference](/en/developers/api-admin).
+</Callout>

@@ -6,9 +6,7 @@
   <url><loc>https://docs.sokopluss.co.tz/en/developers/api-auth</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/api-conventions</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/api-conversations</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.sokopluss.co.tz/en/developers/api-flags</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/api-flash-sales</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.sokopluss.co.tz/en/developers/api-notes</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/api-notifications</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/api-orders</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/api-products</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
@@ -16,7 +14,6 @@
   <url><loc>https://docs.sokopluss.co.tz/en/developers/api-search</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/api-services</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/api-subscriptions</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.sokopluss.co.tz/en/developers/api-tasks</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/api-universities</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/api-uploads</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/api-users</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
@@ -24,18 +21,14 @@
   <url><loc>https://docs.sokopluss.co.tz/en/developers/authentication</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/clickpesa-integration</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/data-model</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.sokopluss.co.tz/en/developers/ecommerce-controls</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/escrow-commissions</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/introduction</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/notifications-push</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/payments-overview</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.sokopluss.co.tz/en/developers/permissions</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/quick-start</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/rate-limiting</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/developers/webhooks</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/help/account-verification</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.sokopluss.co.tz/en/help/admin-notes</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.sokopluss.co.tz/en/help/admin-permissions</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/help/becoming-a-delivery-partner</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/help/becoming-a-provider</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/help/becoming-a-vendor</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
@@ -46,13 +39,11 @@
   <url><loc>https://docs.sokopluss.co.tz/en/help/escrow-protection</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/help/faq</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/help/finding-products</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.sokopluss.co.tz/en/help/flagging-and-tasks</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/help/fulfilling-orders</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/help/language-and-app</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/help/managing-bookings</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/help/managing-products</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/help/managing-services</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.sokopluss.co.tz/en/help/messages-and-customercare</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/help/payment-methods</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/help/placing-an-order</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/en/help/promoting-your-shop</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
@@ -67,9 +58,7 @@
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/api-auth</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/api-conventions</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/api-conversations</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.sokopluss.co.tz/sw/developers/api-flags</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/api-flash-sales</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.sokopluss.co.tz/sw/developers/api-notes</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/api-notifications</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/api-orders</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/api-products</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
@@ -77,7 +66,6 @@
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/api-search</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/api-services</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/api-subscriptions</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.sokopluss.co.tz/sw/developers/api-tasks</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/api-universities</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/api-uploads</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/api-users</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
@@ -85,18 +73,14 @@
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/authentication</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/clickpesa-integration</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/data-model</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.sokopluss.co.tz/sw/developers/ecommerce-controls</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/escrow-commissions</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/introduction</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/notifications-push</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/payments-overview</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.sokopluss.co.tz/sw/developers/permissions</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/quick-start</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/rate-limiting</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/developers/webhooks</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/help/account-verification</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.sokopluss.co.tz/sw/help/admin-notes</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.sokopluss.co.tz/sw/help/admin-permissions</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/help/becoming-a-delivery-partner</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/help/becoming-a-provider</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/help/becoming-a-vendor</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
@@ -107,13 +91,11 @@
   <url><loc>https://docs.sokopluss.co.tz/sw/help/escrow-protection</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/help/faq</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/help/finding-products</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.sokopluss.co.tz/sw/help/flagging-and-tasks</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/help/fulfilling-orders</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/help/language-and-app</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/help/managing-bookings</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/help/managing-products</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/help/managing-services</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.sokopluss.co.tz/sw/help/messages-and-customercare</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/help/payment-methods</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/help/placing-an-order</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/help/promoting-your-shop</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
@@ -124,6 +106,5 @@
   <url><loc>https://docs.sokopluss.co.tz/sw/help/subscriptions-boosts</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/help/tracking-delivery</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/help/trust-and-safety</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://docs.sokopluss.co.tz/sw/help/what-is-sokoplus</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://docs.sokopluss.co.tz/sw/help/working-hours</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
 </urlset>

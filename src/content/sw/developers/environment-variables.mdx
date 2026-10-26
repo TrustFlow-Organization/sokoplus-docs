@@ -1,0 +1,88 @@
+---
+title: "Vigeu vya mazingira"
+description: "Vigeu vya msingi na vya muunganisho vinavyosomwa na backend ya SokoPlus."
+group: "deployment"
+order: 1
+visibility: admin
+updated: 2026-10-25
+---
+
+Backend husanidiwa kupitia vigeu vya mazingira. Ukurasa huu unaeleza vigeu unavyoweka kwa kawaida; `.env.example` kwenye hazina ya backend ndiyo orodha kamili. Thamani zinazohitajika hazina default — seva inaweza kukataa kuanza bila kuzipata.
+
+## Msingi
+
+| Kigeu | Inahitajika | Default | Kusudi |
+|-------|-------------|---------|--------|
+| `DATABASE_URL` | Ndiyo | — | Connection string ya PostgreSQL |
+| `JWT_SECRET` | Ndiyo | — | Siri ya kusaini tokeni za JWT |
+| `PORT` | Hapana | 5001 | Port ya seva |
+| `NODE_ENV` | Hapana | `development` | `development` / `production` |
+| `CORS_ORIGIN` | Hapana | `localhost:3000` | Origins zilizoruhusiwa, zikitenganishwa kwa koma |
+| `CORS_ORIGIN2` | Hapana | — | Origins za ziada zilizoruhusiwa |
+| `GOOGLE_WEB_CLIENT_ID` | Hapana | — | Client ID ya Google OAuth web |
+
+## Msimamizi mkuu
+
+| Kigeu | Inahitajika | Default | Kusudi |
+|-------|-------------|---------|--------|
+| `SUPERADMIN_EMAIL` | Ndiyo | — | Barua pepe ya mwanzilishi kwa kuingia kwa bypass |
+| `SUPERADMIN_PASSWORD_HASH` | Ndiyo | — | bcrypt hash inayolinda shughuli za upendeleo |
+
+## Pool ya database
+
+| Kigeu | Default | Kusudi |
+|-------|---------|--------|
+| `DB_POOL_MAX` | 20 | Upeo wa connections kwa kila instance |
+| `DB_POOL_MIN` | 2 | Connections za chini zinazobaki wazi |
+| `DB_CONNECT_TIMEOUT_MS` | 10000 | Muda wa connection |
+| `DB_IDLE_TIMEOUT_MS` | 30000 | Muda wa connection isiyotumika |
+| `DB_KEEPALIVE_MS` | 0 | TCP keepalive; `0` huzima |
+
+## Malipo
+
+| Kigeu | Kusudi |
+|-------|--------|
+| `PAYMENT_PROVIDER` | Gateway inayotumika: `azampay` au `snipe` |
+| `AZAMPAY_APP_NAME` | Jina la app ya AzamPay |
+| `AZAMPAY_CLIENT_ID` | Client ID ya AzamPay |
+| `AZAMPAY_CLIENT_SECRET` | Client secret ya AzamPay |
+| `AZAMPAY_API_KEY` | API key tuli ya AzamPay |
+| `AZAMPAY_WEBHOOK_SECRET` | Uthibitisho wa hiari wa callback kwa API key |
+| `AZAMPAY_MODE` | `SANDBOX` au `PRODUCTION` |
+| `AZAMPAY_SANDBOX_URL` | Base URL ya checkout ya sandbox |
+| `AZAMPAY_PRODUCTION_URL` | Base URL ya checkout ya production |
+| `SNIPE_CLIENT_ID` | Client ID ya Snipe (inapohifadhiwa) |
+| `SNIPE_API_KEY` | API key ya Snipe |
+| `SNIPE_CHECKSUM_KEY` | Key ya kusaini maombi ya Snipe |
+| `SNIPE_WEBHOOK_SECRET` | Uthibitisho wa webhook ya Snipe |
+| `SNIPE_MODE` | Mazingira ya Snipe |
+
+## Cloudinary (media)
+
+| Kigeu | Kusudi |
+|-------|--------|
+| `CLOUDINARY_CLOUD_NAME` | Jina la cloud |
+| `CLOUDINARY_API_KEY` | API key |
+| `CLOUDINARY_API_SECRET` | API secret |
+
+## Barua pepe, SMS na push
+
+| Kigeu | Kusudi |
+|-------|--------|
+| `BREVO_API_KEY` | API key ya barua pepe za transaction |
+| `BREVO_FROM_EMAIL` | Barua pepe ya mtumaji |
+| `BREVO_FROM_NAME` | Jina la mtumaji |
+| `BEEM_API_KEY` | API key ya SMS ya Beem Africa |
+| `BEEM_API_SECRET` | API secret ya SMS ya Beem Africa |
+| `BEEM_SENDER_ID` | Sender ID ya SMS |
+| `VAPID_PUBLIC_KEY` | Public key ya web-push VAPID |
+| `VAPID_PRIVATE_KEY` | Private key ya web-push VAPID |
+
+## Cache na rate limiting
+
+| Kigeu | Kusudi |
+|-------|--------|
+| `UPSTASH_REDIS_URL` | URL ya Upstash Redis REST |
+| `UPSTASH_REDIS_TOKEN` | Token ya Upstash Redis |
+
+> **Warning:** Usiweke `.env` au siri halisi kwenye hazina. Tumia placeholders kwenye `.env.example` na secret manager ya host yako kwenye production.

@@ -1,0 +1,70 @@
+---
+title: "API ya msimamizi mkuu"
+description: "Rejea ya endpoints za jukwaa, fedha, rekodi, rufaa, usajili, flash sale na mfumo zinazohitaji msimamizi mkuu pekee."
+group: "api"
+order: 19
+visibility: superAdmin
+updated: 2026-10-26
+---
+
+Endpoints hizi zinahitaji kipindi cha `superAdmin`. Vipindi vya msimamizi wa kawaida haviwezi kuona ukurasa huu.
+
+## Watumiaji, wauzaji na maagizo ya msimamizi mkuu
+
+| Method | Path | Auth | Maelezo |
+|--------|------|------|---------|
+| DELETE | `/admin/users/:id` | superAdmin | Futa mtumiaji kwa upole |
+| PUT | `/admin/vendors/:id/toggle-products` | superAdmin | Washa/zima uorodheshaji wa bidhaa |
+| DELETE | `/admin/orders/:orderId` | superAdmin | Futa agizo kwa soft delete |
+
+## Fedha na rekodi
+
+| Method | Path | Auth | Maelezo |
+|--------|------|------|---------|
+| GET | `/admin/commissions` | superAdmin | Orodha ya komisheni |
+| PUT | `/admin/commissions/:id/pay` | superAdmin | Weka alama ya komisheni iliyolipwa |
+| GET | `/admin/refunds` | superAdmin | Maombi ya kurudishiwa fedha |
+| POST | `/admin/refunds/:id/approve` | superAdmin | Idhinisha kurudishiwa fedha |
+| POST | `/admin/refunds/:id/reject` | superAdmin | Kataa kurudishiwa fedha |
+| GET | `/admin/records` | superAdmin | Rekodi zilizofutwa kwa upole |
+| POST | `/admin/records/:model/:id/restore` | superAdmin | Rejesha rekodi |
+
+## Rufaa, mikopo na usajili
+
+| Method | Path | Auth | Maelezo |
+|--------|------|------|---------|
+| GET | `/referrals/admin/all` | superAdmin | Rufaa zote (kwa kurasa) |
+| GET | `/credits/admin/user/:userId` | superAdmin | Salio la mikopo na miamala ya mtumiaji |
+| POST | `/credits/admin/adjust` | superAdmin | Rekebisha mikopo ya mtumiaji kwa mikono |
+| GET | `/subscriptions/all` | superAdmin | Usajili wote pamoja na taarifa za wamiliki |
+
+## Flash sales
+
+| Method | Path | Auth | Maelezo |
+|--------|------|------|---------|
+| GET | `/flash-sales/admin/list` | superAdmin | Orodhesha mauzo ya flash |
+| POST | `/flash-sales/admin/create` | superAdmin | Unda flash sale |
+| PATCH | `/flash-sales/admin/:id` | superAdmin | Sasisha flash sale |
+| DELETE | `/flash-sales/admin/:id` | superAdmin | Futa flash sale kwa upole |
+| PATCH | `/flash-sales/admin/participant/:id/approve` | superAdmin | Idhinisha mshiriki |
+| PATCH | `/flash-sales/admin/participant/:id/reject` | superAdmin | Kataa mshiriki |
+
+## Ufagio wa escrow
+
+| Method | Path | Auth | Maelezo |
+|--------|------|------|---------|
+| POST | `/escrow/process-expired` | superAdmin | Fagia escrow zilizoisha muda |
+
+## Mfumo (superAdmin)
+
+| Method | Path | Maelezo |
+|--------|------|---------|
+| GET | `/admin/system/health` | Ucheleweshaji wa hifadhidata, CPU, kumbukumbu, idadi |
+| POST | `/admin/clear-database` | Futa majedwali yote (inahitaji nenosiri) |
+| POST | `/admin/clear-database/selective` | Futa majedwali yasiyo muhimu |
+| GET | `/admin/ecommerce` | Swichi zote za vipengele |
+| PUT | `/admin/ecommerce/:id` | Badilisha swichi ya kipengele |
+| GET | `/admin/map/data` | Data ya eneo kwa ramani ya msimamizi |
+| GET | `/admin/scan/:id` | Tafuta ID kwenye majedwali yote |
+
+> **Onyo:** `clear-database` inaharibu data na inahitaji nenosiri. `superAdmin` pekee.

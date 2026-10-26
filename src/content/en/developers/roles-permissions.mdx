@@ -1,0 +1,78 @@
+---
+title: "Roles & permissions"
+description: "The role system, the authorize middleware, and the super admin bypass."
+group: "authentication"
+order: 2
+visibility: superAdmin
+updated: 2026-10-25
+---
+
+SokoPlus uses a **role-based access control (RBAC)** system on top of JWT auth.
+
+## Roles
+
+| Role | Description |
+|------|-------------|
+| `client` | Buyer — orders, wishlist, addresses, reviews |
+| `vendor` | Sells physical products |
+| `service_provider` | Offers professional services |
+| `delivery` | Carries out deliveries |
+| `partnerAdmin` | Day-to-day admin operations |
+| `majorAdmin` | Broader operations: clients, commissions, refunds, settings, audit, task assignment |
+| `superAdmin` | Full system access |
+
+## How authorization works
+
+Two middleware functions gate every protected route:
+
+1. **`protect`** — verifies the JWT and loads the user.
+2. **`authorize(...roles)`** — checks `req.user.role` against the allowed list.
+
+```js
+// Example: only vendors and above can create a product
+router.post(
+  '/add',
+  protect,
+  authorize('vendor', 'service_provider'),
+  productController.createProduct,
+)
+```
+
+## The super admin bypass
+
+`superAdmin` is special:
+
+- Bypasses **all** role checks in `authorize`.
+- Can recover access even when the database is empty via the founder environment configuration.
+- `partnerAdmin` cannot modify or view `superAdmin` accounts.
+
+## The permission model
+
+Admin permissions resolve in **three layers**, and a deny always wins:
+
+| Layer | Stored in | Notes |
+|-------|-----------|-------|
+| 1. superAdmin bypass | — | Holds every key with no rows |
+| 2. Role defaults | `RolePermission` (`role` + `permissionKey`) | Falls back to the code defaults in `ROLE_PERMISSIONS` until a role is seeded |
+| 3. Per-admin override | `AdminPermission` (`adminId` + `permissionKey`, `effect` = `grant`/`deny`) | `deny` beats a role default; delete the row (`effect: null`) to inherit again |
+
+Delegate through the **grant matrix**: a `superAdmin` grants anything, while a `majorAdmin`/`partnerAdmin` can grant every key **except** `manage_permissions`, `manage_regions` and `assign_regions`. Region-scoped admins also only act within their own region.
+
+Every mutating admin action goes through `auditedAction`: it checks the capability, requires a **reason** (a `superAdmin` may omit it, recorded as `reasonOverride`), writes the `AdminAction` audit row in the same transaction, and appends to `ActivityLog`.
+
+> **Note:** The read/write endpoints are documented on the **Admin** API page (`/admin/permissions/...` and `/admin/regions/assign`).
+
+## Permission summary
+
+| Capability | Minimum role |
+|------------|--------------|
+| Browse, cart, wishlist, orders | `client` |
+| List products / services | `vendor` / `service_provider` (business approved) |
+| Manage delivery people | `vendor` / `service_provider` |
+| Complete deliveries | `delivery` |
+| Manage users, vendors, orders | `partnerAdmin` |
+| Vendor approvals, reports, support tickets | `partnerAdmin` |
+| Commissions, refunds, settings, activity log, task assignment | `majorAdmin` |
+| Records, system health, privileged operations, ecommerce controls | `superAdmin` |
+
+> **Note:** The `authorize` middleware returns `403 Forbidden` when the user's role is not permitted.

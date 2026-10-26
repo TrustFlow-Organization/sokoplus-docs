@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { KeyRound, Lock, Mail } from 'lucide-react'
 import { signInDeveloper } from '@/lib/developerAuth'
@@ -22,7 +22,7 @@ export function LoginPage() {
     title: `${t('loginTitle')} | SokoPlus Docs`,
     description: t('loginDescription'),
     lang,
-    canonicalPath: `/${lang}/login`,
+    canonicalPath: `/login?lang=${lang}`,
   })
 
   function onSubmit(e: FormEvent) {
@@ -100,13 +100,6 @@ export function LoginPage() {
           </button>
         </form>
       </div>
-
-      <p className="mt-6 text-center text-sm text-on-surface-variant">
-        {t('haveToken')}{' '}
-        <Link to={`/${lang}/redeem`} className="font-semibold text-brand underline underline-offset-2">
-          {t('useToken')}
-        </Link>
-      </p>
     </div>
   )
 }

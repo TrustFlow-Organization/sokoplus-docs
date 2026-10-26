@@ -1,0 +1,88 @@
+---
+title: "Environment variables"
+description: "Core and integration environment variables read by the SokoPlus backend."
+group: "deployment"
+order: 1
+visibility: admin
+updated: 2026-10-25
+---
+
+The backend is configured through environment variables. This page covers the variables you will normally set; `.env.example` in the backend repository is the authoritative list. Required values have no default — the server may refuse to start without them.
+
+## Core
+
+| Variable | Required | Default | Purpose |
+|----------|----------|---------|---------|
+| `DATABASE_URL` | Yes | — | PostgreSQL connection string |
+| `JWT_SECRET` | Yes | — | Secret for signing JWT tokens |
+| `PORT` | No | 5001 | Server port |
+| `NODE_ENV` | No | `development` | `development` / `production` |
+| `CORS_ORIGIN` | No | `localhost:3000` | Comma-separated allowed origins |
+| `CORS_ORIGIN2` | No | — | Additional allowed origins |
+| `GOOGLE_WEB_CLIENT_ID` | No | — | Google OAuth web client ID |
+
+## Super admin
+
+| Variable | Required | Default | Purpose |
+|----------|----------|---------|---------|
+| `SUPERADMIN_EMAIL` | Yes | — | Founder email for bypass login |
+| `SUPERADMIN_PASSWORD_HASH` | Yes | — | bcrypt hash guarding privileged operations |
+
+## Database pool
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `DB_POOL_MAX` | 20 | Maximum pooled connections per instance |
+| `DB_POOL_MIN` | 2 | Minimum idle connections |
+| `DB_CONNECT_TIMEOUT_MS` | 10000 | Connection timeout |
+| `DB_IDLE_TIMEOUT_MS` | 30000 | Idle connection timeout |
+| `DB_KEEPALIVE_MS` | 0 | TCP keepalive; `0` disables |
+
+## Payments
+
+| Variable | Purpose |
+|----------|---------|
+| `PAYMENT_PROVIDER` | Active gateway: `azampay` or `snipe` |
+| `AZAMPAY_APP_NAME` | AzamPay app name |
+| `AZAMPAY_CLIENT_ID` | AzamPay client ID |
+| `AZAMPAY_CLIENT_SECRET` | AzamPay client secret |
+| `AZAMPAY_API_KEY` | Static AzamPay API key |
+| `AZAMPAY_WEBHOOK_SECRET` | Optional callback API-key check |
+| `AZAMPAY_MODE` | `SANDBOX` or `PRODUCTION` |
+| `AZAMPAY_SANDBOX_URL` | Sandbox checkout base URL |
+| `AZAMPAY_PRODUCTION_URL` | Production checkout base URL |
+| `SNIPE_CLIENT_ID` | Snipe client ID (when preserved) |
+| `SNIPE_API_KEY` | Snipe API key |
+| `SNIPE_CHECKSUM_KEY` | Snipe request signing key |
+| `SNIPE_WEBHOOK_SECRET` | Snipe webhook verification |
+| `SNIPE_MODE` | Snipe environment |
+
+## Cloudinary (media)
+
+| Variable | Purpose |
+|----------|---------|
+| `CLOUDINARY_CLOUD_NAME` | Cloud name |
+| `CLOUDINARY_API_KEY` | API key |
+| `CLOUDINARY_API_SECRET` | API secret |
+
+## Email, SMS and push
+
+| Variable | Purpose |
+|----------|---------|
+| `BREVO_API_KEY` | Transactional email API key |
+| `BREVO_FROM_EMAIL` | Sender address |
+| `BREVO_FROM_NAME` | Sender display name |
+| `BEEM_API_KEY` | Beem Africa SMS API key |
+| `BEEM_API_SECRET` | Beem Africa SMS API secret |
+| `BEEM_SENDER_ID` | SMS sender ID |
+| `VAPID_PUBLIC_KEY` | Web-push VAPID public key |
+| `VAPID_PRIVATE_KEY` | Web-push VAPID private key |
+
+## Cache and rate limiting
+
+| Variable | Purpose |
+|----------|---------|
+| `UPSTASH_REDIS_URL` | Upstash Redis REST URL |
+| `UPSTASH_REDIS_TOKEN` | Upstash Redis token |
+
+> **Warning:** Never commit `.env` or real secret values. Use placeholders in `.env.example` and your host's secret manager in production.

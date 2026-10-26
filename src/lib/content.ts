@@ -10,6 +10,7 @@ export interface ArticleFrontmatter {
   order?: number
   updated?: string
   sidebar?: boolean
+  visibility?: 'admin' | 'superAdmin'
 }
 
 export interface ContentModule {
@@ -27,6 +28,7 @@ export interface Article {
   group: string
   order: number
   updated?: string
+  visibility?: 'admin' | 'superAdmin'
   Component: ComponentType
 }
 
@@ -47,6 +49,7 @@ const articles: Article[] = Object.entries(raw).map(([path, mod]) => {
     group: fm.group ?? '',
     order: typeof fm.order === 'number' ? fm.order : 999,
     updated: fm.updated,
+    visibility: fm.visibility,
     Component: mod.default,
   }
 })
@@ -86,8 +89,9 @@ export function getPrevNext(
   section: Section,
   lang: Lang,
   slug: string,
+  filter?: (article: Article) => boolean,
 ): { prev?: Article; next?: Article } {
-  const list = getArticles({ section, lang })
+  const list = getArticles({ section, lang }).filter(filter ?? (() => true))
   const idx = list.findIndex((a) => a.slug === slug)
   if (idx === -1) return {}
   return { prev: list[idx - 1], next: list[idx + 1] }

@@ -31,7 +31,6 @@ Usajili huhifadhi `tier`, `price`, `startDate`, `endDate`, `isActive`, `isTrial`
 | POST | `/subscriptions/upgrade` | vendor/service_provider | Pandisha hadi kiwango cha juu |
 | POST | `/subscriptions/downgrade` | vendor/service_provider | Ratibu kushusha hadi kiwango cha chini |
 | GET | `/subscriptions/vendor/:vendorId/limits` | JWT | Mipaka ya kuorodhesha ya muuzaji |
-| GET | `/subscriptions/all` | superAdmin | Orodhesha usajili wote |
 
 ## GET /subscriptions/my
 
@@ -122,24 +121,6 @@ Inarudisha mipaka ya usajili ya wasifu wa biashara ya muuzaji (`vendorId` ni id 
 
 Inarudisha `404` wakati muuzaji hajapatikana.
 
-## GET /subscriptions/all
-
-superAdmin pekee. Inaorodhesha kila usajili, kutoka mpya hadi zamani, pamoja na `id`, `fullName` na `email` za mmiliki. Chuja kwa vigezo vya query `type` (`vendor`|`service_provider`), `tier` na `isActive` (`true`|`false`).
-
-<CodeBlock title="Jibu">
-```json
-{
-  "subscriptions": [
-    {
-      "id": "...",
-      "type": "vendor",
-      "tier": "pro",
-      "price": 25000,
-      "isActive": true,
-      "user": { "id": "...", "fullName": "Jane Doe", "email": "jane@example.com" }
-    }
-  ],
-  "total": 1
-}
-```
-</CodeBlock>
+<Callout type="note">
+Orodha ya usajili wote wa jukwaa imeandikwa katika [Rejea ya API ya msimamizi](/sw/developers/api-admin) iliyozuiwa.
+</Callout>

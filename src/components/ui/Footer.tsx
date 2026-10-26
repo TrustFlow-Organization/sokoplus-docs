@@ -67,7 +67,7 @@ export function Footer({ lang }: { lang: Lang }) {
           © {new Date().getFullYear()} SokoPlus. {t('copyright')}
         </p>
         <Link
-          to={`/${lang}/redeem`}
+          to={`/login?lang=${lang}`}
           className="text-on-surface-muted/80 transition-colors hover:text-on-surface-variant"
         >
           {t('docsAdmin')}

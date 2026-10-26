@@ -1,0 +1,70 @@
+---
+title: "Super admin API"
+description: "Reference for super-admin-only platform, finance, record, referral, subscription, flash-sale and system endpoints."
+group: "api"
+order: 19
+visibility: superAdmin
+updated: 2026-10-26
+---
+
+These endpoints require a `superAdmin` session. Admin sessions cannot view this page.
+
+## Super-admin users, vendors & orders
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| DELETE | `/admin/users/:id` | superAdmin | Soft-delete a user |
+| PUT | `/admin/vendors/:id/toggle-products` | superAdmin | Enable/disable product listing |
+| DELETE | `/admin/orders/:orderId` | superAdmin | Soft-delete an order |
+
+## Money & records
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/admin/commissions` | superAdmin | Commission list |
+| PUT | `/admin/commissions/:id/pay` | superAdmin | Mark commission paid |
+| GET | `/admin/refunds` | superAdmin | Refund requests |
+| POST | `/admin/refunds/:id/approve` | superAdmin | Approve refund |
+| POST | `/admin/refunds/:id/reject` | superAdmin | Reject refund |
+| GET | `/admin/records` | superAdmin | Soft-deleted records |
+| POST | `/admin/records/:model/:id/restore` | superAdmin | Restore record |
+
+## Referrals, credits & subscriptions
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/referrals/admin/all` | superAdmin | All referrals (paginated) |
+| GET | `/credits/admin/user/:userId` | superAdmin | A user's credit balance and transactions |
+| POST | `/credits/admin/adjust` | superAdmin | Manually adjust a user's credits |
+| GET | `/subscriptions/all` | superAdmin | All subscriptions with owner details |
+
+## Flash sales
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/flash-sales/admin/list` | superAdmin | List flash sales |
+| POST | `/flash-sales/admin/create` | superAdmin | Create a flash sale |
+| PATCH | `/flash-sales/admin/:id` | superAdmin | Update a flash sale |
+| DELETE | `/flash-sales/admin/:id` | superAdmin | Soft-delete a flash sale |
+| PATCH | `/flash-sales/admin/participant/:id/approve` | superAdmin | Approve a participant |
+| PATCH | `/flash-sales/admin/participant/:id/reject` | superAdmin | Reject a participant |
+
+## Escrow sweep
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/escrow/process-expired` | superAdmin | Sweep expired escrows |
+
+## System (superAdmin)
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/admin/system/health` | DB latency, CPU, memory, counts |
+| POST | `/admin/clear-database` | Wipe all tables (password gated) |
+| POST | `/admin/clear-database/selective` | Clear non-essential tables |
+| GET | `/admin/ecommerce` | All feature flags |
+| PUT | `/admin/ecommerce/:id` | Toggle a feature flag |
+| GET | `/admin/map/data` | Geo data for the admin map |
+| GET | `/admin/scan/:id` | Scan all tables for an ID |
+
+> **Warning:** `clear-database` is destructive and password-gated. `superAdmin` only.

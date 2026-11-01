@@ -4,12 +4,15 @@
   "version": "1.0.0",
   "type": "module",
   "description": "SokoPlus — Official Documentation & Help Centre (EN + SW)",
+  "packageManager": "pnpm@11.9.0",
   "scripts": {
     "dev": "vite --port 3001",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
     "check": "tsc --noEmit",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "format": "prettier --write ."
   },
   "dependencies": {
@@ -28,6 +31,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@mdx-js/rollup": "^3.1.1",
+    "@playwright/test": "^1.64.1",
     "@shikijs/rehype": "^4.4.1",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^26.1.2",
